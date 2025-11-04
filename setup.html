@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Markdown Viewer - セットアップガイド</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 48px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      color: #24292f;
+      margin-bottom: 12px;
+    }
+
+    .header p {
+      font-size: 18px;
+      color: #57606a;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      display: block;
+    }
+
+    .step {
+      background-color: #f6f8fa;
+      border-left: 4px solid #667eea;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: 8px;
+    }
+
+    .step-number {
+      display: inline-block;
+      background-color: #667eea;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: bold;
+      margin-right: 12px;
+      font-size: 16px;
+    }
+
+    .step h2 {
+      display: inline-block;
+      font-size: 20px;
+      color: #24292f;
+      margin-bottom: 12px;
+      vertical-align: middle;
+    }
+
+    .step p {
+      font-size: 16px;
+      color: #57606a;
+      line-height: 1.6;
+      margin-top: 12px;
+      margin-left: 44px;
+    }
+
+    .step code {
+      background-color: rgba(175, 184, 193, 0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+      color: #d73a49;
+    }
+
+    .important {
+      background-color: #fff3cd;
+      border-left-color: #ffc107;
+      border: 2px solid #ffc107;
+    }
+
+    .important .step-number {
+      background-color: #ffc107;
+      color: #24292f;
+    }
+
+    .success {
+      background-color: #d4edda;
+      border-left-color: #28a745;
+      border: 2px solid #28a745;
+    }
+
+    .success .step-number {
+      background-color: #28a745;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #667eea;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.3s, transform 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .note {
+      background-color: #e7f3ff;
+      border: 1px solid #2196f3;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .note p {
+      color: #0c5ba0;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .note strong {
+      color: #024a7a;
+    }
+
+    .safety-info {
+      background-color: #e8f5e9;
+      border: 1px solid #4caf50;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+      margin-left: 44px;
+    }
+
+    .safety-info h3 {
+      color: #2e7d32;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .safety-info h3::before {
+      content: '🔒';
+      margin-right: 8px;
+      font-size: 20px;
+    }
+
+    .safety-info ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .safety-info li {
+      color: #1b5e20;
+      font-size: 14px;
+      line-height: 1.8;
+      padding-left: 24px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .safety-info li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .detail-box {
+      background-color: #fff;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 12px;
+      margin-left: 44px;
+    }
+
+    .detail-box p {
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      color: #24292f;
+    }
+
+    .detail-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-box strong {
+      color: #0969da;
+    }
+
+    .step-button {
+      margin-top: 16px;
+      margin-left: 44px;
+    }
+
+    .step-button .btn {
+      font-size: 15px;
+      padding: 12px 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="icons/icon128.png" alt="Local Markdown Viewer アイコン" class="icon">
+      <h1>Local Markdown Viewer</h1>
+      <p>インストールありがとうございます！</p>
+    </div>
+
+    <div class="step important">
+      <span class="step-number">!</span>
+      <h2>重要な設定が必要です</h2>
+      <p>
+        この拡張機能を使用するには、<strong>「ファイルのURLへのアクセスを許可する」</strong>設定を有効にする必要があります。
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <h2>拡張機能の管理ページを開く</h2>
+      <p>
+        以下のボタンをクリックして、拡張機能の管理ページを開きます。
+      </p>
+      <p style="margin-left: 44px; font-size: 14px; color: #57606a; margin-top: 8px;">
+        または、Chromeのアドレスバーに <code>chrome://extensions/</code> を入力してEnterキーを押すこともできます。
+      </p>
+      <div class="step-button">
+        <button id="openExtensionsBtn" class="btn">拡張機能の管理ページを開く</button>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <h2>Local Markdown Viewerを見つける</h2>
+      <p>
+        拡張機能の一覧から「Local Markdown Viewer」を探します。
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <h2>詳細ボタンをクリック</h2>
+      <p>
+        「Local Markdown Viewer」カードの中にある<strong>「詳細」</strong>ボタンをクリックします。
+      </p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <h2>ファイルアクセスを許可する</h2>
+      <p>
+        「ファイルのURLへのアクセスを許可する」のスイッチを<strong>ON</strong>にします。
+      </p>
+
+      <div class="detail-box">
+        <p><strong>この設定は何をするのか？</strong></p>
+        <p>
+          この設定を有効にすると、Local Markdown Viewerが<code>file://</code>プロトコル（ローカルファイル）で開かれたページにアクセスできるようになります。
+          具体的には、あなたのパソコン内の<code>.md</code>や<code>.markdown</code>ファイルをChromeで開いたときに、この拡張機能がMarkdown形式のテキストを読み取り、HTMLに変換して美しく表示します。
+        </p>
+        <p><strong>なぜ必要なのか？</strong></p>
+        <p>
+          Chromeはセキュリティ上の理由から、デフォルトでは拡張機能がローカルファイルにアクセスすることを禁止しています。
+          この拡張機能はローカルファイルを表示するためのものなので、明示的にユーザー（あなた）が許可する必要があります。
+        </p>
+      </div>
+
+      <div class="safety-info">
+        <h3>安全性について</h3>
+        <ul>
+          <li><strong>ファイル内容を外部に送信しません</strong> - あなたのMarkdownファイルの内容がインターネットに送信されることはありません</li>
+          <li><strong>読み取り専用です</strong> - ファイルの内容を変更・削除・上書きすることは一切ありません</li>
+          <li><strong>表示のみを行います</strong> - 開いたMarkdownファイルのテキストを読み取り、HTML形式に変換して表示するだけです</li>
+          <li><strong>Markdownファイルに記載された内容のみを表示</strong> - Markdownファイル内に画像リンク（<code>![](image.png)</code>など）がある場合、その画像を表示しますが、記載されていないファイルに勝手にアクセスすることはありません</li>
+          <li><strong>プライバシーを尊重します</strong> - データ収集、トラッキング、広告表示は一切行いません</li>
+          <li><strong>オープンソースです</strong> - すべてのコードは公開されており、動作を確認できます</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step success">
+      <span class="step-number">✓</span>
+      <h2>設定完了！</h2>
+      <p>
+        これで、ローカルの<code>.md</code>または<code>.markdown</code>ファイルをChromeで開くと、GitHubスタイルで美しく表示されます。
+      </p>
+    </div>
+
+    <div class="note">
+      <p>
+        <strong>使い方：</strong>
+        Markdownファイル（<code>.md</code>または<code>.markdown</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。
+        または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。
+      </p>
+    </div>
+  </div>
+
+  <script src="setup.js"></script>
+</body>
+</html>
