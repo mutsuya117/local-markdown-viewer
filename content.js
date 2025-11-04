@@ -211,6 +211,10 @@
   const savedSidebarWidth = localStorage.getItem('markdown-sidebar-width') || '280';
   const sidebarWidth = parseInt(savedSidebarWidth, 10);
 
+  // localStorageから保存されたダークモード設定を取得（デフォルト: light）
+  const savedTheme = localStorage.getItem('markdown-theme') || 'light';
+  const isDarkMode = savedTheme === 'dark';
+
   // ページを書き換え
   document.documentElement.innerHTML = `
 <!DOCTYPE html>
@@ -430,8 +434,17 @@
       vertical-align: middle;
     }
     .markdown-body .hljs {
-      background-color: #f6f8fa;
+      background-color: #f6f8fa !important;
       padding: 0;
+    }
+    /* ライトモードでもhighlight.jsの全要素の背景色を強制的に透明に */
+    .hljs *,
+    .hljs span,
+    .hljs > *,
+    pre code.hljs *,
+    code.hljs *,
+    .hljs [class*="hljs-"] {
+      background-color: transparent !important;
     }
     body {
       margin: 0;
@@ -517,6 +530,193 @@
       text-decoration: underline;
       background-color: rgba(9, 105, 218, 0.1);
     }
+    /* ダークモード切り替えボタン */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background-color: #f6f8fa;
+      color: #24292f;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    /* ダークモード用スタイル */
+    body[data-theme="dark"] {
+      background-color: #0d1117;
+    }
+    body[data-theme="dark"] .markdown-body {
+      color: #c9d1d9;
+      background-color: #0d1117;
+    }
+    body[data-theme="dark"] .markdown-body a {
+      color: #58a6ff;
+    }
+    body[data-theme="dark"] .markdown-body h1,
+    body[data-theme="dark"] .markdown-body h2 {
+      border-bottom-color: #21262d;
+    }
+    body[data-theme="dark"] .markdown-body h6 {
+      color: #8b949e;
+    }
+    body[data-theme="dark"] .markdown-body blockquote {
+      color: #8b949e;
+      border-left-color: #3b434b;
+    }
+    body[data-theme="dark"] .markdown-body code {
+      background-color: rgba(110, 118, 129, 0.4);
+    }
+    body[data-theme="dark"] .markdown-body pre {
+      background-color: #1c2128;
+    }
+    body[data-theme="dark"] .markdown-body table th {
+      background-color: #1c2128;
+      border-color: #3b434b;
+    }
+    body[data-theme="dark"] .markdown-body table td {
+      border-color: #3b434b;
+    }
+    body[data-theme="dark"] .markdown-body table tr {
+      background-color: #0d1117;
+      border-top-color: #21262d;
+    }
+    body[data-theme="dark"] .markdown-body table tr:nth-child(2n) {
+      background-color: #1c2128;
+    }
+    body[data-theme="dark"] .markdown-body hr {
+      background-color: #21262d;
+    }
+    body[data-theme="dark"] .markdown-body input[type="checkbox"] {
+      background-color: #0d1117;
+      border-color: #3b434b;
+    }
+    body[data-theme="dark"] .markdown-body input[type="checkbox"]:checked {
+      background-color: #1f6feb;
+      border-color: #1f6feb;
+    }
+    body[data-theme="dark"] .markdown-body input[type="checkbox"]:hover {
+      border-color: #58a6ff;
+    }
+    body[data-theme="dark"] .sidebar {
+      background-color: #161b22;
+      border-right-color: #21262d;
+    }
+    body[data-theme="dark"] .toc-title {
+      color: #c9d1d9;
+    }
+    body[data-theme="dark"] .toc-list a {
+      color: #58a6ff;
+    }
+    body[data-theme="dark"] .toc-list a:hover {
+      background-color: rgba(88, 166, 255, 0.1);
+    }
+    body[data-theme="dark"] .theme-toggle {
+      background-color: #21262d;
+      color: #c9d1d9;
+    }
+    body[data-theme="dark"] .resize-handle:hover,
+    body[data-theme="dark"] .resize-handle.dragging {
+      background-color: #58a6ff;
+    }
+    /* ダークモード用のシンタックスハイライト（GitHub Dark風） */
+    body[data-theme="dark"] .hljs {
+      color: #c9d1d9;
+      background-color: #1c2128 !important;
+    }
+    /* highlight.jsの全要素の背景色を強制的に透明に */
+    body[data-theme="dark"] .hljs *,
+    body[data-theme="dark"] .hljs span,
+    body[data-theme="dark"] .hljs > *,
+    body[data-theme="dark"] pre code.hljs *,
+    body[data-theme="dark"] code.hljs *,
+    body[data-theme="dark"] .hljs [class*="hljs-"] {
+      background-color: transparent !important;
+    }
+    body[data-theme="dark"] .hljs-comment,
+    body[data-theme="dark"] .hljs-quote {
+      color: #8b949e;
+      font-style: italic;
+    }
+    body[data-theme="dark"] .hljs-keyword,
+    body[data-theme="dark"] .hljs-selector-tag,
+    body[data-theme="dark"] .hljs-subst {
+      color: #ff7b72;
+    }
+    body[data-theme="dark"] .hljs-number,
+    body[data-theme="dark"] .hljs-literal,
+    body[data-theme="dark"] .hljs-variable,
+    body[data-theme="dark"] .hljs-template-variable,
+    body[data-theme="dark"] .hljs-tag .hljs-attr {
+      color: #79c0ff;
+    }
+    body[data-theme="dark"] .hljs-string,
+    body[data-theme="dark"] .hljs-doctag {
+      color: #a5d6ff;
+    }
+    body[data-theme="dark"] .hljs-title,
+    body[data-theme="dark"] .hljs-section,
+    body[data-theme="dark"] .hljs-selector-id {
+      color: #d2a8ff;
+      font-weight: bold;
+    }
+    body[data-theme="dark"] .hljs-subst {
+      font-weight: normal;
+    }
+    body[data-theme="dark"] .hljs-type,
+    body[data-theme="dark"] .hljs-class .hljs-title {
+      color: #ffa657;
+    }
+    body[data-theme="dark"] .hljs-tag,
+    body[data-theme="dark"] .hljs-name,
+    body[data-theme="dark"] .hljs-attribute {
+      color: #7ee787;
+      font-weight: normal;
+    }
+    body[data-theme="dark"] .hljs-regexp,
+    body[data-theme="dark"] .hljs-link {
+      color: #a5d6ff;
+    }
+    body[data-theme="dark"] .hljs-symbol,
+    body[data-theme="dark"] .hljs-bullet {
+      color: #ffa657;
+    }
+    body[data-theme="dark"] .hljs-built_in,
+    body[data-theme="dark"] .hljs-builtin-name {
+      color: #ffa657;
+    }
+    body[data-theme="dark"] .hljs-meta {
+      color: #79c0ff;
+    }
+    body[data-theme="dark"] .hljs-deletion {
+      background-color: #490202 !important;
+      color: #ffdcd7;
+    }
+    body[data-theme="dark"] .hljs-addition {
+      background-color: #0f5323 !important;
+      color: #aff5b4;
+    }
+    body[data-theme="dark"] .hljs-emphasis {
+      font-style: italic;
+    }
+    body[data-theme="dark"] .hljs-strong {
+      font-weight: bold;
+    }
+    body[data-theme="dark"] .hljs-formula {
+      color: #79c0ff;
+    }
     /* レスポンシブ対応：小さい画面では目次を非表示 */
     @media (max-width: 1024px) {
       .sidebar {
@@ -530,7 +730,10 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="${savedTheme}">
+  <button class="theme-toggle" title="ダークモード切り替え">
+    ${isDarkMode ? '☀️' : '🌙'}
+  </button>
   <div class="sidebar">
     ${result.toc}
   </div>
@@ -644,5 +847,41 @@
       }
     });
   }
+
+  // コードブロック内の個別要素の背景色を削除する関数（ライト・ダーク両方で使用）
+  function removeCodeBlockBackgrounds() {
+    const codeBlocks = document.querySelectorAll('pre code.hljs');
+    codeBlocks.forEach(block => {
+      // コードブロック内のすべての要素から背景色を削除
+      const elements = block.querySelectorAll('*');
+      elements.forEach(el => {
+        el.style.backgroundColor = '';
+      });
+    });
+  }
+
+  // ダークモード切り替え機能
+  const themeToggle = document.querySelector('.theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      // テーマを切り替え
+      document.body.setAttribute('data-theme', newTheme);
+
+      // ボタンのアイコンを更新
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+
+      // テーマ切り替え後、コードブロックの背景色を削除（ライト・ダーク両方）
+      removeCodeBlockBackgrounds();
+
+      // localStorageに保存
+      localStorage.setItem('markdown-theme', newTheme);
+    });
+  }
+
+  // 初期ロード時は常に背景色を削除（ライト・ダーク両方）
+  removeCodeBlockBackgrounds();
 
 })();
