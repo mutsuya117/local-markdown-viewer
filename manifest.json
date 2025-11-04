@@ -27,10 +27,20 @@
         "content.js"
       ],
       "css": [
-        "libs/highlight-github.min.css",
-        "libs/katex.min.css"
+        "libs/highlight-github.min.css"
       ],
       "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "libs/katex.min.css",
+        "libs/fonts/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

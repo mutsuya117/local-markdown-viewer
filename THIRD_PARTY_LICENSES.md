@@ -107,7 +107,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ## Mermaid
 
-**Version**: 11.4.1
+**Version**: 11.12.1
 **License**: MIT License
 **Website**: https://mermaid.js.org/
 **Repository**: https://github.com/mermaid-js/mermaid

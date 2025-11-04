@@ -123,6 +123,8 @@ graph TD
 - ユーザージャーニー（journey）
 - その他多数
 
+**注意**: Mermaidダイアグラムは常にデフォルト（ライト）テーマで描画されます。ダークモード切り替え時も、ダイアグラムは白背景で表示されます（周囲のMarkdownコンテンツのみダークモードになります）。
+
 詳細は[Mermaid公式ドキュメント](https://mermaid.js.org/)をご覧ください。
 
 #### 数式（KaTeX）
@@ -178,7 +180,7 @@ $$
 - [marked.js](https://marked.js.org/) v12.0.0 - MIT License
 - [highlight.js](https://highlightjs.org/) v11.9.0 - BSD 3-Clause License
 - [DOMPurify](https://github.com/cure53/DOMPurify) v3.0.8 - Apache License 2.0 / MPL 2.0
-- [Mermaid](https://mermaid.js.org/) v11.4.1 - MIT License
+- [Mermaid](https://mermaid.js.org/) v11.12.1 - MIT License
 - [KaTeX](https://katex.org/) v0.16.10 - MIT License
 
 詳細なライセンス情報は [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) をご覧ください。

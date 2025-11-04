@@ -8,6 +8,12 @@
     return;
   }
 
+  // KaTeX CSSを<link>タグとして追加（拡張機能のディレクトリから相対パスが解決される）
+  const katexLink = document.createElement('link');
+  katexLink.rel = 'stylesheet';
+  katexLink.href = chrome.runtime.getURL('libs/katex.min.css');
+  document.head.appendChild(katexLink);
+
   // 生のMarkdownテキストを取得
   let markdownText = document.body.textContent;
 
@@ -202,15 +208,24 @@
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
 
-    // すべてのテキストノードを走査してプレースホルダーを探す
-    const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+    // すべてのテキストノードを走査してプレースホルダーを探す（最適化版）
+    const walker = document.createTreeWalker(
+      tempDiv,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function(node) {
+          // プレースホルダーを含むノードのみ処理（高速化）
+          return node.nodeValue && node.nodeValue.includes('MATH_BLOCK_')
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        }
+      }
+    );
+
     const nodesToReplace = [];
     let node;
     while (node = walker.nextNode()) {
-      const text = node.nodeValue;
-      if (text && text.includes('MATH_BLOCK_')) {
-        nodesToReplace.push(node);
-      }
+      nodesToReplace.push(node);
     }
 
     // プレースホルダーを数式に置き換え（テキストノードとして安全に設定）
@@ -511,13 +526,17 @@
       padding: 0;
     }
     /* ライトモードでもhighlight.jsの全要素の背景色を強制的に透明に */
+    .hljs,
     .hljs *,
     .hljs span,
     .hljs > *,
+    pre code.hljs,
     pre code.hljs *,
+    code.hljs,
     code.hljs *,
     .hljs [class*="hljs-"] {
       background-color: transparent !important;
+      background-image: none !important;
     }
     /* Mermaidダイアグラムのスタイル */
     .mermaid {
@@ -806,13 +825,17 @@
       background-color: #1c2128 !important;
     }
     /* highlight.jsの全要素の背景色を強制的に透明に */
+    body[data-theme="dark"] .hljs,
     body[data-theme="dark"] .hljs *,
     body[data-theme="dark"] .hljs span,
     body[data-theme="dark"] .hljs > *,
+    body[data-theme="dark"] pre code.hljs,
     body[data-theme="dark"] pre code.hljs *,
+    body[data-theme="dark"] code.hljs,
     body[data-theme="dark"] code.hljs *,
     body[data-theme="dark"] .hljs [class*="hljs-"] {
       background-color: transparent !important;
+      background-image: none !important;
     }
     body[data-theme="dark"] .hljs-comment,
     body[data-theme="dark"] .hljs-quote {
@@ -888,7 +911,7 @@
     }
     /* ダークモード用のMermaidダイアグラムスタイル */
     body[data-theme="dark"] .mermaid {
-      background-color: #1c2128;
+      background-color: #ffffff;
     }
     /* ダークモード用のKaTeX数式スタイル */
     body[data-theme="dark"] .katex {
@@ -1078,18 +1101,6 @@
     });
   }
 
-  // コードブロック内の個別要素の背景色を削除する関数（ライト・ダーク両方で使用）
-  function removeCodeBlockBackgrounds() {
-    const codeBlocks = document.querySelectorAll('pre code.hljs');
-    codeBlocks.forEach(block => {
-      // コードブロック内のすべての要素から背景色を削除
-      const elements = block.querySelectorAll('*');
-      elements.forEach(el => {
-        el.style.backgroundColor = '';
-      });
-    });
-  }
-
   // 印刷ボタン機能
   const printButton = document.querySelector('.print-button');
   if (printButton) {
@@ -1126,58 +1137,52 @@
       // ボタンのアイコンを更新
       themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
 
-      // テーマ切り替え後、コードブロックの背景色を削除（ライト・ダーク両方）
-      removeCodeBlockBackgrounds();
-
-      // Mermaidのテーマも切り替え（ページリロードが必要）
-      if (typeof mermaid !== 'undefined' && document.querySelectorAll('.mermaid').length > 0) {
-        // Mermaidダイアグラムがある場合は、テーマ適用のためページをリロード
-        localStorage.setItem('markdown-theme', newTheme);
-        location.reload();
-        return;
-      }
-
       // localStorageに保存
       localStorage.setItem('markdown-theme', newTheme);
     });
   }
 
-  // 初期ロード時は常に背景色を削除（ライト・ダーク両方）
-  removeCodeBlockBackgrounds();
+  // 重い処理を非同期化してページ表示を高速化
+  // requestIdleCallbackを使用（利用可能な場合）、なければsetTimeoutで代替
+  const scheduleWork = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
 
-  // KaTeXで数式をレンダリング（KaTeX有効時のみ）
+  // KaTeXで数式をレンダリング（KaTeX有効時のみ）- 非同期処理
   if (isKatexEnabled && typeof renderMathInElement !== 'undefined') {
-    const mathElements = document.querySelector('.markdown-body');
-    if (mathElements) {
-      try {
-        renderMathInElement(mathElements, {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },   // ディスプレイ数式
-            { left: '$', right: '$', display: false },    // インライン数式
-            { left: '\\[', right: '\\]', display: true }, // ディスプレイ数式（LaTeX形式）
-            { left: '\\(', right: '\\)', display: false } // インライン数式（LaTeX形式）
-          ],
-          throwOnError: false, // エラーが発生してもレンダリングを継続
-          errorColor: '#cc0000', // エラー時の色
-          strict: false, // 厳密モードを無効化
-          trust: false // セキュリティ: 信頼されていないコマンドを許可しない
-        });
-      } catch (err) {
-        console.error('KaTeX rendering error:', err);
+    scheduleWork(() => {
+      const mathElements = document.querySelector('.markdown-body');
+      if (mathElements) {
+        try {
+          renderMathInElement(mathElements, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },   // ディスプレイ数式
+              { left: '$', right: '$', display: false },    // インライン数式
+              { left: '\\[', right: '\\]', display: true }, // ディスプレイ数式（LaTeX形式）
+              { left: '\\(', right: '\\)', display: false } // インライン数式（LaTeX形式）
+            ],
+            throwOnError: false, // エラーが発生してもレンダリングを継続
+            errorColor: '#cc0000', // エラー時の色
+            strict: false, // 厳密モードを無効化
+            trust: false // セキュリティ: 信頼されていないコマンドを許可しない
+          });
+        } catch (err) {
+          // KaTeXレンダリングエラーは無視（ページ表示は継続）
+        }
       }
-    }
+    });
   }
 
-  // Mermaidダイアグラムの初期化と描画
+  // Mermaidダイアグラムの初期化と描画（同期処理）
   if (typeof mermaid !== 'undefined') {
     // Mermaidの設定
-    mermaid.initialize({
+    // 常にデフォルトテーマ（ライトモード）を使用
+    const mermaidConfig = {
       startOnLoad: false,
-      theme: isDarkMode ? 'dark' : 'default',
-      // セキュリティ: XSS攻撃を防ぐため、strictモードを使用
-      securityLevel: 'strict',
+      theme: 'default',
+      securityLevel: 'loose',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif'
-    });
+    };
+
+    mermaid.initialize(mermaidConfig);
 
     // Mermaidダイアグラムを描画
     const mermaidElements = document.querySelectorAll('.mermaid');
@@ -1190,6 +1195,8 @@
       // 描画を実行
       mermaid.run({
         querySelector: '.mermaid'
+      }).catch(err => {
+        // Mermaid描画エラーは無視（ページ表示は継続）
       });
     }
   }
