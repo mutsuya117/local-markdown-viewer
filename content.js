@@ -9,7 +9,31 @@
   }
 
   // 生のMarkdownテキストを取得
-  const markdownText = document.body.textContent;
+  let markdownText = document.body.textContent;
+
+  // localStorageから保存されたKaTeX設定を取得（デフォルト: ON）
+  // セキュリティ: ホワイトリスト検証
+  const rawKatexEnabled = localStorage.getItem('markdown-katex-enabled');
+  const isKatexEnabled = rawKatexEnabled !== 'false'; // デフォルトON（明示的にfalseの場合のみOFF）
+
+  // 数式ブロックを一時的に保護（Marked.jsが誤って処理しないように）
+  // KaTeXが有効な場合のみ実行
+  const mathBlocks = [];
+  if (isKatexEnabled) {
+    // ディスプレイ数式 $$...$$ を保護
+    markdownText = markdownText.replace(/\$\$[\s\S]*?\$\$/g, function(match) {
+      const placeholder = `MATH_BLOCK_${mathBlocks.length}_PLACEHOLDER`;
+      mathBlocks.push(match);
+      return placeholder;
+    });
+
+    // ディスプレイ数式 \[...\] を保護
+    markdownText = markdownText.replace(/\\\[[\s\S]*?\\\]/g, function(match) {
+      const placeholder = `MATH_BLOCK_${mathBlocks.length}_PLACEHOLDER`;
+      mathBlocks.push(match);
+      return placeholder;
+    });
+  }
 
   // HTMLエスケープ関数（XSS対策）
   function escapeHtml(unsafe) {
@@ -156,7 +180,7 @@
     }
   });
 
-  const htmlContent = DOMPurify.sanitize(rawHtml, {
+  let htmlContent = DOMPurify.sanitize(rawHtml, {
     ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
                    'blockquote', 'code', 'pre', 'strong', 'em', 'b', 'i', 'img',
                    'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'span',
@@ -171,6 +195,36 @@
 
   // フックをクリーンアップ
   DOMPurify.removeAllHooks();
+
+  // 保護した数式ブロックを元に戻す（KaTeX有効時のみ）
+  // セキュリティ: テキストノードとして復元することでXSSを防ぐ
+  if (isKatexEnabled && mathBlocks.length > 0) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+
+    // すべてのテキストノードを走査してプレースホルダーを探す
+    const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+    const nodesToReplace = [];
+    let node;
+    while (node = walker.nextNode()) {
+      const text = node.nodeValue;
+      if (text && text.includes('MATH_BLOCK_')) {
+        nodesToReplace.push(node);
+      }
+    }
+
+    // プレースホルダーを数式に置き換え（テキストノードとして安全に設定）
+    nodesToReplace.forEach(textNode => {
+      const text = textNode.nodeValue;
+      const replaced = text.replace(/MATH_BLOCK_(\d+)_PLACEHOLDER/g, function(match, index) {
+        // テキストノードのnodeValueとして設定することで、HTMLとして解釈されない
+        return mathBlocks[parseInt(index, 10)];
+      });
+      textNode.nodeValue = replaced;
+    });
+
+    htmlContent = tempDiv.innerHTML;
+  }
 
   // TOC（目次）を生成
   function generateTOC(html) {
@@ -480,6 +534,19 @@
       height: auto;
       display: inline-block;
     }
+    /* KaTeX数式のスタイル */
+    .katex {
+      font-size: 1.1em;
+    }
+    .katex-display {
+      margin: 1em 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    .katex-display > .katex {
+      display: inline-block;
+      text-align: center;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -564,6 +631,30 @@
       text-decoration: underline;
       background-color: rgba(9, 105, 218, 0.1);
     }
+    /* 印刷ボタン */
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 120px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background-color: #f6f8fa;
+      color: #24292f;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+    .print-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
     /* ダークモード切り替えボタン */
     .theme-toggle {
       position: fixed;
@@ -587,6 +678,38 @@
     .theme-toggle:hover {
       transform: scale(1.1);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    /* KaTeX切り替えボタン */
+    .katex-toggle {
+      position: fixed;
+      top: 20px;
+      right: 70px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background-color: #f6f8fa;
+      color: #57606a;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      z-index: 1001;
+      line-height: 1.1;
+      padding: 0;
+    }
+    .katex-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .katex-toggle.enabled {
+      background-color: rgba(9, 105, 218, 0.08);
+      color: #57606a;
     }
     /* ダークモード用スタイル */
     body[data-theme="dark"] {
@@ -657,9 +780,21 @@
     body[data-theme="dark"] .toc-list a:hover {
       background-color: rgba(88, 166, 255, 0.1);
     }
+    body[data-theme="dark"] .print-button {
+      background-color: #21262d;
+      color: #c9d1d9;
+    }
     body[data-theme="dark"] .theme-toggle {
       background-color: #21262d;
       color: #c9d1d9;
+    }
+    body[data-theme="dark"] .katex-toggle {
+      background-color: #21262d;
+      color: #8b949e;
+    }
+    body[data-theme="dark"] .katex-toggle.enabled {
+      background-color: rgba(88, 166, 255, 0.1);
+      color: #8b949e;
     }
     body[data-theme="dark"] .resize-handle:hover,
     body[data-theme="dark"] .resize-handle.dragging {
@@ -755,6 +890,21 @@
     body[data-theme="dark"] .mermaid {
       background-color: #1c2128;
     }
+    /* ダークモード用のKaTeX数式スタイル */
+    body[data-theme="dark"] .katex {
+      color: #c9d1d9;
+    }
+    body[data-theme="dark"] .katex .mord,
+    body[data-theme="dark"] .katex .mbin,
+    body[data-theme="dark"] .katex .mrel,
+    body[data-theme="dark"] .katex .mopen,
+    body[data-theme="dark"] .katex .mclose,
+    body[data-theme="dark"] .katex .mpunct {
+      color: #c9d1d9;
+    }
+    body[data-theme="dark"] .katex .katex-html {
+      color: #c9d1d9;
+    }
     /* レスポンシブ対応：小さい画面では目次を非表示 */
     @media (max-width: 1024px) {
       .sidebar {
@@ -766,9 +916,51 @@
         padding: 20px;
       }
     }
+    /* 印刷用スタイル */
+    @media print {
+      /* ボタンを非表示 */
+      .print-button,
+      .theme-toggle,
+      .katex-toggle {
+        display: none !important;
+      }
+      /* サイドバーとリサイズハンドルを非表示 */
+      .sidebar,
+      .resize-handle {
+        display: none !important;
+      }
+      /* メインコンテンツをフル幅で表示 */
+      .main-content {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      /* ページ区切りを見出しの前で行わない */
+      .markdown-body h1,
+      .markdown-body h2,
+      .markdown-body h3,
+      .markdown-body h4,
+      .markdown-body h5,
+      .markdown-body h6 {
+        page-break-after: avoid;
+      }
+      /* コードブロックやテーブルの途中でページ区切りしない */
+      .markdown-body pre,
+      .markdown-body table,
+      .markdown-body blockquote {
+        page-break-inside: avoid;
+      }
+    }
   </style>
 </head>
 <body data-theme="${savedTheme}">
+  <button class="print-button" title="印刷">
+    🖨️
+  </button>
+  <button class="katex-toggle ${isKatexEnabled ? 'enabled' : ''}" title="KaTeX数式レンダリング切り替え">
+    <span>TeX</span>
+    <span>${isKatexEnabled ? 'ON' : 'OFF'}</span>
+  </button>
   <button class="theme-toggle" title="ダークモード切り替え">
     ${isDarkMode ? '☀️' : '🌙'}
   </button>
@@ -898,6 +1090,29 @@
     });
   }
 
+  // 印刷ボタン機能
+  const printButton = document.querySelector('.print-button');
+  if (printButton) {
+    printButton.addEventListener('click', function() {
+      window.print();
+    });
+  }
+
+  // KaTeX切り替え機能
+  const katexToggle = document.querySelector('.katex-toggle');
+  if (katexToggle) {
+    katexToggle.addEventListener('click', function() {
+      const currentEnabled = isKatexEnabled;
+      const newEnabled = !currentEnabled;
+
+      // localStorageに保存（ONの場合は'true'、OFFの場合は'false'）
+      localStorage.setItem('markdown-katex-enabled', newEnabled ? 'true' : 'false');
+
+      // ページをリロードして設定を反映
+      location.reload();
+    });
+  }
+
   // ダークモード切り替え機能
   const themeToggle = document.querySelector('.theme-toggle');
   if (themeToggle) {
@@ -929,6 +1144,29 @@
 
   // 初期ロード時は常に背景色を削除（ライト・ダーク両方）
   removeCodeBlockBackgrounds();
+
+  // KaTeXで数式をレンダリング（KaTeX有効時のみ）
+  if (isKatexEnabled && typeof renderMathInElement !== 'undefined') {
+    const mathElements = document.querySelector('.markdown-body');
+    if (mathElements) {
+      try {
+        renderMathInElement(mathElements, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },   // ディスプレイ数式
+            { left: '$', right: '$', display: false },    // インライン数式
+            { left: '\\[', right: '\\]', display: true }, // ディスプレイ数式（LaTeX形式）
+            { left: '\\(', right: '\\)', display: false } // インライン数式（LaTeX形式）
+          ],
+          throwOnError: false, // エラーが発生してもレンダリングを継続
+          errorColor: '#cc0000', // エラー時の色
+          strict: false, // 厳密モードを無効化
+          trust: false // セキュリティ: 信頼されていないコマンドを許可しない
+        });
+      } catch (err) {
+        console.error('KaTeX rendering error:', err);
+      }
+    }
+  }
 
   // Mermaidダイアグラムの初期化と描画
   if (typeof mermaid !== 'undefined') {

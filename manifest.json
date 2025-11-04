@@ -22,10 +22,13 @@
         "libs/highlight.min.js",
         "libs/purify.min.js",
         "libs/mermaid.min.js",
+        "libs/katex.min.js",
+        "libs/auto-render.min.js",
         "content.js"
       ],
       "css": [
-        "libs/highlight-github.min.css"
+        "libs/highlight-github.min.css",
+        "libs/katex.min.css"
       ],
       "run_at": "document_end"
     }
