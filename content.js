@@ -520,4 +520,44 @@
 </html>
   `;
 
+  // サイドバーのスクロールイベント制御
+  // 左ペイン（目次）でのスクロールが右ペイン（メインコンテンツ）に伝播しないようにする
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('wheel', function(e) {
+      // 現在のスクロール位置を取得
+      const scrollTop = sidebar.scrollTop;
+      const scrollHeight = sidebar.scrollHeight;
+      const clientHeight = sidebar.clientHeight;
+      const deltaY = e.deltaY;
+
+      // スクロール可能かどうかを判定
+      const canScrollDown = scrollTop + clientHeight < scrollHeight - 1; // 1pxの余裕を持たせる
+      const canScrollUp = scrollTop > 1; // 1pxの余裕を持たせる
+
+      // 下方向スクロール時
+      if (deltaY > 0) {
+        if (canScrollDown) {
+          // スクロール可能な場合は、イベント伝播だけを停止
+          e.stopPropagation();
+        } else {
+          // スクロールできない場合は、イベント自体を停止
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
+      // 上方向スクロール時
+      else if (deltaY < 0) {
+        if (canScrollUp) {
+          // スクロール可能な場合は、イベント伝播だけを停止
+          e.stopPropagation();
+        } else {
+          // スクロールできない場合は、イベント自体を停止
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
+    }, { passive: false }); // passive: falseでpreventDefault()を有効化
+  }
+
 })();
