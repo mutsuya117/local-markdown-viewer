@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Local Markdown Viewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ローカルのMarkdownファイルをGitHubスタイルで美しくプレビュー表示します（日本語のみ対応）",
   "icons": {
     "16": "icons/icon16.png",
