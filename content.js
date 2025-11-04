@@ -207,6 +207,10 @@
   // TOC付きHTMLを生成
   const result = generateTOC(htmlContent);
 
+  // localStorageから保存されたサイドバー幅を取得（デフォルト: 280px）
+  const savedSidebarWidth = localStorage.getItem('markdown-sidebar-width') || '280';
+  const sidebarWidth = parseInt(savedSidebarWidth, 10);
+
   // ページを書き換え
   document.documentElement.innerHTML = `
 <!DOCTYPE html>
@@ -440,19 +444,37 @@
       position: fixed;
       left: 0;
       top: 0;
-      width: 280px;
+      width: ${sidebarWidth}px;
       height: 100vh;
       overflow-y: auto;
+      overflow-x: auto;
       background-color: #f6f8fa;
       border-right: 1px solid #d0d7de;
       padding: 20px;
       box-sizing: border-box;
     }
+    .resize-handle {
+      position: fixed;
+      left: ${sidebarWidth}px;
+      top: 0;
+      width: 4px;
+      height: 100vh;
+      background-color: transparent;
+      cursor: col-resize;
+      z-index: 1000;
+      transition: background-color 0.2s;
+    }
+    .resize-handle:hover {
+      background-color: #0969da;
+    }
+    .resize-handle.dragging {
+      background-color: #0969da;
+    }
     .main-content {
-      margin-left: 280px;
+      margin-left: ${sidebarWidth}px;
       flex: 1;
       padding: 45px;
-      max-width: calc(100% - 280px);
+      max-width: calc(100% - ${sidebarWidth}px);
       box-sizing: border-box;
     }
     .toc {
@@ -489,6 +511,7 @@
       display: block;
       padding: 4px 8px;
       border-radius: 3px;
+      white-space: nowrap;
     }
     .toc-list a:hover {
       text-decoration: underline;
@@ -511,6 +534,7 @@
   <div class="sidebar">
     ${result.toc}
   </div>
+  <div class="resize-handle"></div>
   <div class="main-content">
     <article class="markdown-body">
       ${result.content}
@@ -558,6 +582,67 @@
         }
       }
     }, { passive: false }); // passive: falseでpreventDefault()を有効化
+  }
+
+  // リサイズハンドラーのドラッグ機能
+  const resizeHandle = document.querySelector('.resize-handle');
+  const mainContent = document.querySelector('.main-content');
+
+  if (resizeHandle && sidebar && mainContent) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    // 最小幅と最大幅を設定
+    const MIN_WIDTH = 150; // 150px
+    const MAX_WIDTH = 600; // 600px
+
+    resizeHandle.addEventListener('mousedown', function(e) {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = sidebar.offsetWidth;
+
+      // ドラッグ中のスタイルを適用
+      resizeHandle.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none'; // テキスト選択を無効化
+
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (!isResizing) return;
+
+      // 新しい幅を計算
+      const deltaX = e.clientX - startX;
+      let newWidth = startWidth + deltaX;
+
+      // 最小幅と最大幅を制限
+      newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+
+      // 幅を更新
+      sidebar.style.width = newWidth + 'px';
+      resizeHandle.style.left = newWidth + 'px';
+      mainContent.style.marginLeft = newWidth + 'px';
+      mainContent.style.maxWidth = `calc(100% - ${newWidth}px)`;
+
+      e.preventDefault();
+    });
+
+    document.addEventListener('mouseup', function() {
+      if (isResizing) {
+        isResizing = false;
+
+        // ドラッグ中のスタイルを削除
+        resizeHandle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+
+        // 現在の幅をlocalStorageに保存
+        const currentWidth = sidebar.offsetWidth;
+        localStorage.setItem('markdown-sidebar-width', currentWidth.toString());
+      }
+    });
   }
 
 })();
