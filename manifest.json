@@ -21,6 +21,7 @@
         "libs/marked.min.js",
         "libs/highlight.min.js",
         "libs/purify.min.js",
+        "libs/mermaid.min.js",
         "content.js"
       ],
       "css": [

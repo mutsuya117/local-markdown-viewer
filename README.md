@@ -12,7 +12,9 @@
   - 打ち消し線
   - 自動リンク
 - ✅ **シンタックスハイライト** - 140+のプログラミング言語に対応
+- ✅ **Mermaidダイアグラム対応** - フローチャート、シーケンス図、ガントチャート、円グラフなど
 - ✅ **自動目次（TOC）生成** - 見出し（h1-h6）から自動生成
+- ✅ **ダークモード対応** - ワンクリックでライト/ダークモードを切り替え
 - ✅ **GitHubスタイル** - GitHubと同じデザインで表示
 - ✅ **ローカルファイル対応** - file:// プロトコルでアクセスする.mdファイルに対応
 
@@ -81,6 +83,32 @@ function hello() {
 }
 \`\`\`
 
+#### Mermaidダイアグラム
+
+コードブロックの言語として`mermaid`を指定すると、ダイアグラムが自動的に描画されます：
+
+\`\`\`mermaid
+graph TD
+    A[開始] --> B{条件分岐}
+    B -->|Yes| C[処理1]
+    B -->|No| D[処理2]
+    C --> E[終了]
+    D --> E
+\`\`\`
+
+対応するダイアグラムの種類：
+- フローチャート（graph, flowchart）
+- シーケンス図（sequenceDiagram）
+- クラス図（classDiagram）
+- 状態遷移図（stateDiagram）
+- ガントチャート（gantt）
+- 円グラフ（pie）
+- ER図（erDiagram）
+- ユーザージャーニー（journey）
+- その他多数
+
+詳細は[Mermaid公式ドキュメント](https://mermaid.js.org/)をご覧ください。
+
 ## トラブルシューティング
 
 ### Markdownファイルが正しく表示されない
@@ -97,6 +125,7 @@ function hello() {
 - [marked.js](https://marked.js.org/) v12.0.0 - MIT License
 - [highlight.js](https://highlightjs.org/) v11.9.0 - BSD 3-Clause License
 - [DOMPurify](https://github.com/cure53/DOMPurify) v3.0.8 - Apache License 2.0 / MPL 2.0
+- [Mermaid](https://mermaid.js.org/) v11.4.1 - MIT License
 
 詳細なライセンス情報は [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) をご覧ください。
 

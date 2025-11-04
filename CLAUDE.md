@@ -29,6 +29,7 @@
 - **marked.js** v12.0.0 - Markdownパーサー
 - **highlight.js** v11.9.0 - シンタックスハイライト（140+言語対応）
 - **DOMPurify** v3.0.8 - HTMLサニタイゼーション（XSS対策）
+- **Mermaid** v11.4.1 - ダイアグラム描画ライブラリ
 
 ### ビルドツール
 - **ビルドプロセス**: なし
@@ -47,6 +48,7 @@ C:\work\chrome_extention\local-markdown-viewer\
 │   ├── marked.min.js
 │   ├── highlight.min.js
 │   ├── purify.min.js
+│   ├── mermaid.min.js
 │   └── highlight-github.min.css
 ├── styles/               # カスタムCSSスタイル
 │   └── github.css        # GitHubスタイルのCSS
@@ -122,14 +124,26 @@ C:\work\chrome_extention\local-markdown-viewer\
    - 140+のプログラミング言語に対応
    - GitHubスタイルのカラースキーム
 
-3. **自動目次（TOC）生成**
+3. **Mermaidダイアグラム**
+   - フローチャート、シーケンス図、クラス図、状態遷移図
+   - ガントチャート、円グラフ、ER図など
+   - ライト/ダークモード自動切り替え
+
+4. **自動目次（TOC）生成**
    - h1-h6の見出しから自動生成
    - レスポンシブ対応の左サイドバー
    - クリックでスムーズスクロール
+   - サイドバー幅のリサイズ機能
 
-4. **セキュリティ**
+5. **ダークモード**
+   - ワンクリックでライト/ダークモードを切り替え
+   - GitHub風のダークテーマ
+   - localStorageに設定を保存
+
+6. **セキュリティ**
    - DOMPurifyによるHTMLサニタイゼーション
    - XSS攻撃の防止
+   - Mermaid strictモードでスクリプト実行を防止
 
 ## セキュリティ考慮事項
 

@@ -68,6 +68,19 @@
     return `<h${level} id="${slug}">${text}</h${level}>\n`;
   };
 
+  // コードブロックのレンダラーをカスタマイズ（Mermaid対応）
+  const originalCode = renderer.code.bind(renderer);
+  renderer.code = function(code, language) {
+    // Mermaidダイアグラムの場合は特別な処理
+    if (language === 'mermaid') {
+      // mermaidクラスを持つdivとして出力（後でMermaidライブラリが描画）
+      const escapedCode = escapeHtml(code);
+      return `<div class="mermaid">${escapedCode}</div>\n`;
+    }
+    // それ以外は通常のコードブロック
+    return originalCode(code, language);
+  };
+
   // marked v12ではhooksを使う
   marked.use({
     renderer: renderer,
@@ -208,11 +221,17 @@
   const result = generateTOC(htmlContent);
 
   // localStorageから保存されたサイドバー幅を取得（デフォルト: 280px）
+  // セキュリティ: 数値検証と範囲チェック（150-600px）
   const savedSidebarWidth = localStorage.getItem('markdown-sidebar-width') || '280';
-  const sidebarWidth = parseInt(savedSidebarWidth, 10);
+  let sidebarWidth = parseInt(savedSidebarWidth, 10);
+  if (isNaN(sidebarWidth) || sidebarWidth < 150 || sidebarWidth > 600) {
+    sidebarWidth = 280; // 不正な値の場合はデフォルトに戻す
+  }
 
   // localStorageから保存されたダークモード設定を取得（デフォルト: light）
-  const savedTheme = localStorage.getItem('markdown-theme') || 'light';
+  // セキュリティ: ホワイトリスト検証
+  const rawTheme = localStorage.getItem('markdown-theme');
+  const savedTheme = (rawTheme === 'dark' || rawTheme === 'light') ? rawTheme : 'light';
   const isDarkMode = savedTheme === 'dark';
 
   // ページを書き換え
@@ -445,6 +464,21 @@
     code.hljs *,
     .hljs [class*="hljs-"] {
       background-color: transparent !important;
+    }
+    /* Mermaidダイアグラムのスタイル */
+    .mermaid {
+      display: block;
+      margin: 16px auto;
+      padding: 48px;
+      background-color: #ffffff;
+      border-radius: 6px;
+      overflow: visible;
+      text-align: center;
+    }
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
     }
     body {
       margin: 0;
@@ -717,6 +751,10 @@
     body[data-theme="dark"] .hljs-formula {
       color: #79c0ff;
     }
+    /* ダークモード用のMermaidダイアグラムスタイル */
+    body[data-theme="dark"] .mermaid {
+      background-color: #1c2128;
+    }
     /* レスポンシブ対応：小さい画面では目次を非表示 */
     @media (max-width: 1024px) {
       .sidebar {
@@ -876,6 +914,14 @@
       // テーマ切り替え後、コードブロックの背景色を削除（ライト・ダーク両方）
       removeCodeBlockBackgrounds();
 
+      // Mermaidのテーマも切り替え（ページリロードが必要）
+      if (typeof mermaid !== 'undefined' && document.querySelectorAll('.mermaid').length > 0) {
+        // Mermaidダイアグラムがある場合は、テーマ適用のためページをリロード
+        localStorage.setItem('markdown-theme', newTheme);
+        location.reload();
+        return;
+      }
+
       // localStorageに保存
       localStorage.setItem('markdown-theme', newTheme);
     });
@@ -883,5 +929,31 @@
 
   // 初期ロード時は常に背景色を削除（ライト・ダーク両方）
   removeCodeBlockBackgrounds();
+
+  // Mermaidダイアグラムの初期化と描画
+  if (typeof mermaid !== 'undefined') {
+    // Mermaidの設定
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDarkMode ? 'dark' : 'default',
+      // セキュリティ: XSS攻撃を防ぐため、strictモードを使用
+      securityLevel: 'strict',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif'
+    });
+
+    // Mermaidダイアグラムを描画
+    const mermaidElements = document.querySelectorAll('.mermaid');
+    if (mermaidElements.length > 0) {
+      mermaidElements.forEach((element, index) => {
+        const id = `mermaid-diagram-${index}`;
+        element.setAttribute('id', id);
+      });
+
+      // 描画を実行
+      mermaid.run({
+        querySelector: '.mermaid'
+      });
+    }
+  }
 
 })();
