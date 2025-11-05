@@ -43,6 +43,7 @@
 C:\work\chrome_extention\local-markdown-viewer\
 ├── manifest.json          # Chrome拡張機能のマニフェストファイル（Manifest V3）
 ├── content.js            # メインのコンテンツスクリプト
+├── background.js         # Background Service Worker（画像Base64変換用）
 ├── README.md             # プロジェクトドキュメント（日本語）
 ├── icons/                # 拡張機能のアイコン（16, 32, 48, 128px）
 ├── libs/                 # サードパーティライブラリ
@@ -113,8 +114,9 @@ C:\work\chrome_extention\local-markdown-viewer\
 ### デバッグ
 
 - コンテンツスクリプトのデバッグ: ページ上でDevToolsを開く
-- バックグラウンドスクリプトのデバッグ: `chrome://extensions/` の「バックグラウンドページ」リンクをクリック
+- Background Service Workerのデバッグ: `chrome://extensions/` の「Service Worker」リンクをクリック
 - `console.log()` を使用してデバッグ情報を出力
+- 画像エクスポートのデバッグ: Background Service Workerのコンソールで画像変換のログを確認
 
 ## 機能概要
 
@@ -160,19 +162,39 @@ C:\work\chrome_extention\local-markdown-viewer\
    - 現在のモード（ライト/ダーク）をそのまま維持
    - ページ区切りの最適化（見出しやコードブロックの途中で改ページしない）
 
-8. **UIボタン**
+8. **HTMLエクスポート機能**
+   - 右上にエクスポートボタン（⬇️）を配置
+   - スタンドアロンHTMLファイルとしてダウンロード
+   - **セキュリティ重視**: 既にレンダリング済みのコンテンツを使用（Markdownを再パースしない）
+   - **軽量**: 必要最小限のCDN（KaTeX CSSのみ）
+   - ローカル画像（file://、相対パス）を自動的にBase64として埋め込み
+     - 最大ファイルサイズ: 30MB/ファイル
+     - サポート形式: PNG, JPEG, GIF, WebP, SVG, BMP
+   - Background Service Workerを使用してfile://画像を読み取り
+   - 外部画像（http(s)://）はURLのまま保持
+   - エクスポートされたHTMLは目次、ダークモード切り替え、印刷機能を含む
+   - KaTeX設定はエクスポート時点の状態で固定
+   - Content Security Policy (CSP)による保護
+
+9. **UIボタン**
    - すべてのボタンを40px × 40pxの円形に統一
-   - 印刷ボタン（🖨️）: 左端
-   - TeXボタン（2行表示）: 中央
-   - ダークモード切り替えボタン（🌙/☀️）: 右端
+   - エクスポートボタン（⬇️）: 一番左
+   - 印刷ボタン（🖨️）: 左から2番目
+   - TeXボタン（2行表示）: 右から2番目
+   - ダークモード切り替えボタン（☀️/🌙）: 右端
+   - ダークモードボタンは現在の状態を表示（☀️=ライト、🌙=ダーク）
    - ホバー時にスケール拡大アニメーション
 
-9. **セキュリティ**
-   - DOMPurifyによるHTMLサニタイゼーション
-   - XSS攻撃の防止
-   - Mermaid strictモードでスクリプト実行を防止
-   - KaTeX trustモードを無効化（セキュリティ強化）
-   - 数式ブロックをテキストノードとして安全に処理
+10. **セキュリティ**
+    - DOMPurifyによるHTMLサニタイゼーション（XSS対策）
+    - Content Security Policy (CSP)による多層防御
+    - data:スキーム検証（`data:image/*`のみ許可）
+    - Mermaid strictモードでスクリプト実行を防止（`securityLevel: 'strict'`）
+    - KaTeX厳格モード（`trust: false`, `strict: 'warn'`）
+    - KaTeX DoS攻撃対策（`maxSize: 500`, `maxExpand: 1000`）
+    - 画像変換のサイズ・MIMEタイプ検証（上限30MB、画像形式のみ）
+    - エクスポートHTML二重サニタイズ（既にレンダリング済みコンテンツを使用）
+    - Background Service Workerで画像変換を行い、Content Scriptの制限を回避
 
 ## セキュリティ考慮事項
 
@@ -182,13 +204,49 @@ C:\work\chrome_extention\local-markdown-viewer\
 - 外部リソースの読み込みに注意
 - `target="_blank"` を使用する際は `rel="noopener noreferrer"` を追加
 
-### KaTeX数式のセキュリティ処理
-1. **数式ブロックの保護**: Marked.jsパース前にプレースホルダーに置換
+### 多層防御アプローチ
+
+#### レイヤー1: DOMPurifyサニタイズ
+- 許可されたタグ・属性のホワイトリスト方式
+- XSS攻撃に使用される危険なタグ・属性を自動削除
+- `afterSanitizeAttributes` フックで追加検証
+
+#### レイヤー2: Content Security Policy (CSP)
+- 通常表示: `script-src 'none'` - すべてのスクリプト実行を禁止
+- エクスポートHTML: `script-src 'unsafe-inline'` - インラインのみ許可
+- `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`
+
+#### レイヤー3: data:スキーム検証
+- `data:image/*` のみ許可
+- `data:text/html` などの危険なスキームをブロック
+- 画像（`<img src>`）とリンク（`<a href>`）の両方で検証
+
+#### レイヤー4: KaTeXセキュリティ設定
+- `trust: false` - `\url`, `\href`等の危険なコマンドを無効化
+- `strict: 'warn'` - 非推奨のLaTeXコマンドに警告
+- `maxSize: 500` - 数式サイズ制限（DoS攻撃対策）
+- `maxExpand: 1000` - マクロ展開回数制限（DoS攻撃対策）
+
+#### レイヤー5: Mermaidセキュリティ設定
+- `securityLevel: 'strict'` - スクリプト実行を防止
+
+#### レイヤー6: 画像変換の制限
+- 最大ファイルサイズ: 30MB/ファイル
+- MIMEタイプ検証（PNG, JPEG, GIF, WebP, SVG, BMP のみ許可）
+- Content-Lengthと実際のBlobサイズの両方をチェック
+
+### KaTeX数式のセキュリティ処理（通常表示）
+1. **ディスプレイ数式のみ保護**: Marked.jsパース前に`$$...$$`と`\[...\]`をプレースホルダーに置換
 2. **DOMPurifyサニタイズ**: 通常のMarkdownをサニタイズ
 3. **安全な復元**: プレースホルダーをテキストノードのnodeValueとして設定（HTMLとして解釈されない）
-4. **KaTeX処理**: KaTeXライブラリが安全に数式をレンダリング
+4. **KaTeX auto-render**: インライン数式（`$...$`, `\(...\)`）を含むすべての数式を安全にレンダリング
 
-この手順により、数式ブロック内にスクリプトタグやXSSペイロードが含まれていても、実行されることはありません。
+### エクスポートHTMLのセキュリティ処理
+1. **既にレンダリング済みのコンテンツを使用**: Markdownを再パースしないことでXSS攻撃を根本から防御
+2. **再サニタイズ**: エクスポート前に危険なdata:スキームを再度検証
+3. **CSP適用**: エクスポートされたHTML自体にもCSPヘッダーを含める
+
+この多層防御により、数式やMarkdown内にスクリプトタグやXSSペイロードが含まれていても、実行されることはありません。
 
 ## ライセンス
 
