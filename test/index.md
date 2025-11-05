@@ -52,7 +52,26 @@ DOMPurifyとContent Security Policy (CSP)によるXSS攻撃の防御機能をテ
 
 ---
 
-### 3. [KaTeX数式テスト](katex-tests.md)
+### 3. [HTMLタグテスト](html-tags-test.md)
+**ファイル**: `html-tags-test.md`
+
+GitHub互換のHTMLタグが正しく表示されることを確認します。
+
+**テスト内容**:
+- 安全なタグ（details/summary、kbd、mark、sub/sup、ins/del/s、tfoot）
+- 危険なタグのエスケープ表示（script、iframe、form、style）
+- イベントハンドラの削除確認
+
+**期待される結果**:
+- ✅ 安全なタグは正しく機能する
+- ✅ 危険なタグは文字列として表示される（実行されない）
+- ✅ イベントハンドラは削除される
+
+**推奨度**: ⭐⭐⭐⭐ GitHub互換性確認のため重要
+
+---
+
+### 4. [KaTeX数式テスト](katex-tests.md)
 **ファイル**: `katex-tests.md`
 
 KaTeX数式レンダリング機能とそのセキュリティをテストします。
@@ -75,7 +94,7 @@ KaTeX数式レンダリング機能とそのセキュリティをテストしま
 
 ---
 
-### 4. [Mermaidダイアグラムテスト](mermaid-tests.md)
+### 5. [Mermaidダイアグラムテスト](mermaid-tests.md)
 **ファイル**: `mermaid-tests.md`
 
 Mermaidダイアグラム描画機能をテストします。
@@ -97,7 +116,7 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 5. [シンタックスハイライトテスト](syntax-highlight-test.md)
+### 6. [シンタックスハイライトテスト](syntax-highlight-test.md)
 **ファイル**: `syntax-highlight-test.md`
 
 コードブロックのシンタックスハイライト機能をテストします。
@@ -115,7 +134,7 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 6. [ローカル画像テスト](local-images-test.md)
+### 7. [ローカル画像テスト](local-images-test.md)
 **ファイル**: `local-images-test.md`
 
 ローカル画像ファイルの表示機能をテストします。
@@ -132,7 +151,7 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 7. [パフォーマンステスト](performance-test.md)
+### 8. [パフォーマンステスト](performance-test.md)
 **ファイル**: `performance-test.md`
 
 大量のコンテンツを含む重負荷テストファイルです。
@@ -155,6 +174,25 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
+### 9. [ネットワークトラフィックテスト](network-test.md)
+**ファイル**: `network-test.md`
+
+外部ライブラリがデータを外部に送信していないことを確認します。
+
+**テスト内容**:
+- Chrome DevToolsのNetworkタブで通信を監視
+- 拡張機能のリソース以外へのリクエストがないことを確認
+- エクスポートHTML使用時のネットワークトラフィック確認
+
+**期待される結果**:
+- ✅ 拡張機能のローカルリソースのみを使用
+- ✅ アナリティクス・トラッキングサービスへのリクエストが0件
+- ✅ エクスポートHTML使用時もKaTeX CDNのみ（KaTeX ON時）
+
+**推奨度**: ⭐⭐⭐ プライバシー確認のため重要
+
+---
+
 ## 🔍 推奨テスト順序
 
 新しいバージョンをテストする際は、以下の順序でテストすることを推奨します：
@@ -166,22 +204,29 @@ Mermaidダイアグラム描画機能をテストします。
    - XSS攻撃がブロックされることを確認
    - アラートが一切表示されないことを確認
 
-3. **シンタックスハイライトテスト** (`syntax-highlight-test.md`)
+3. **HTMLタグテスト** (`html-tags-test.md`)
+   - GitHub互換のHTMLタグが正しく機能することを確認
+   - 危険なタグがエスケープ表示されることを確認
+
+4. **シンタックスハイライトテスト** (`syntax-highlight-test.md`)
    - コードブロックが正しくハイライトされることを確認
 
-4. **KaTeX数式テスト** (`katex-tests.md`)
+5. **KaTeX数式テスト** (`katex-tests.md`)
    - 数式が正しくレンダリングされることを確認
    - 数式内のXSS攻撃がブロックされることを確認
 
-5. **Mermaidダイアグラムテスト** (`mermaid-tests.md`)
+6. **Mermaidダイアグラムテスト** (`mermaid-tests.md`)
    - すべての種類のダイアグラムが正しく描画されることを確認
    - ダークモード時も白背景で表示されることを確認
 
-6. **パフォーマンステスト** (`performance-test.md`)
+7. **ネットワークトラフィックテスト** (`network-test.md`)
+   - 外部へのデータ送信がないことを確認
+
+8. **パフォーマンステスト** (`performance-test.md`)（オプション）
    - 大量のコンテンツが正常に表示されることを確認
    - ページの読み込み速度とスクロール性能を確認
 
-7. **ローカル画像テスト** (`local-images-test.md`)（オプション）
+9. **ローカル画像テスト** (`local-images-test.md`)（オプション）
    - ローカル画像機能を使用する場合のみ
 
 ---
@@ -234,6 +279,8 @@ Mermaidダイアグラム描画機能をテストします。
 
 - 基本的なMarkdown機能 → `basic-features.md`
 - セキュリティ関連 → `security-tests.md`
+- HTMLタグ機能 → `html-tags-test.md`
 - 数式機能 → `katex-tests.md`
 - ダイアグラム機能 → `mermaid-tests.md`
 - シンタックスハイライト → `syntax-highlight-test.md`
+- ネットワーク/プライバシー → `network-test.md`
