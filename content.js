@@ -113,7 +113,8 @@
     gfm: true,
     breaks: true,
     headerIds: true,
-    mangle: false
+    mangle: false,
+    sanitize: false // 生のHTMLを通す（DOMPurifyでサニタイズ）
   });
 
   // highlight.jsを適用するhooks
@@ -156,12 +157,73 @@
   });
 
   // Markdownをパース
-  const rawHtml = marked.parse(markdownText);
+  let rawHtml = marked.parse(markdownText);
+
+  // DOMPurifyでサニタイズする前に、危険なタグをエスケープ（GitHub互換）
+  // 以下のタグは削除ではなくエスケープして文字列表示
+  const dangerousTags = ['script', 'iframe', 'object', 'embed', 'style', 'link',
+                         'form', 'button', 'select', 'textarea', 'option'];
+
+  dangerousTags.forEach(tag => {
+    // 開始タグと終了タグの両方をエスケープ
+    const openTagRegex = new RegExp(`<${tag}(?:\\s[^>]*)?>`, 'gi');
+    const closeTagRegex = new RegExp(`</${tag}>`, 'gi');
+
+    rawHtml = rawHtml.replace(openTagRegex, function(match) {
+      return escapeHtml(match);
+    });
+    rawHtml = rawHtml.replace(closeTagRegex, function(match) {
+      return escapeHtml(match);
+    });
+  });
 
   // DOMPurifyでサニタイズ（XSS対策）
 
+  // 削除される属性（イベントハンドラ）を記録するフック
+  const removedAttributes = new Map();
+  DOMPurify.addHook('uponSanitizeAttribute', function(node, data) {
+    // イベントハンドラ属性（on*）が削除される場合
+    if (data.attrName && data.attrName.match(/^on/i)) {
+      // ノードのIDを生成（後で参照するため）
+      if (!node.dataset.purifyId) {
+        node.dataset.purifyId = 'node-' + Math.random().toString(36).substr(2, 9);
+      }
+      const nodeId = node.dataset.purifyId;
+
+      if (!removedAttributes.has(nodeId)) {
+        removedAttributes.set(nodeId, []);
+      }
+      removedAttributes.get(nodeId).push(`${data.attrName}="${data.attrValue}"`);
+    }
+  });
+
   // 外部リソースの処理フック
   DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+    // 削除されたイベントハンドラをコメントとして追加（デバッグ用）
+    if (node.dataset && node.dataset.purifyId) {
+      const nodeId = node.dataset.purifyId;
+      if (removedAttributes.has(nodeId)) {
+        // dataset.purifyIdを削除（不要な属性を残さない）
+        delete node.dataset.purifyId;
+      }
+    }
+
+    // style属性のセキュリティ検証
+    if (node.hasAttribute && node.hasAttribute('style')) {
+      const style = node.getAttribute('style');
+      // セキュリティ: 危険なスタイルをブロック
+      // javascript:, expression(), url(javascript:) などを含むstyleを削除
+      if (style && (
+        style.match(/javascript:/i) ||
+        style.match(/expression\(/i) ||
+        style.match(/behavior:/i) ||
+        style.match(/binding:/i) ||
+        style.match(/@import/i)
+      )) {
+        node.removeAttribute('style');
+      }
+    }
+
     // リンクの外部URLに警告を追加
     if (node.tagName === 'A') {
       const href = node.getAttribute('href');
@@ -198,15 +260,29 @@
         node.parentNode.removeChild(node);
       }
     }
+
+    // details要素のイベントハンドラを削除（ontoggle等）
+    if (node.tagName === 'DETAILS' || node.tagName === 'SUMMARY') {
+      // イベントハンドラ属性を全て削除
+      Array.from(node.attributes).forEach(attr => {
+        if (attr.name.match(/^on/i)) {
+          node.removeAttribute(attr.name);
+        }
+      });
+    }
   });
 
   let htmlContent = DOMPurify.sanitize(rawHtml, {
     ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
                    'blockquote', 'code', 'pre', 'strong', 'em', 'b', 'i', 'img',
-                   'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'span',
-                   'br', 'hr', 'del', 'input'],
+                   'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'div', 'span',
+                   'br', 'hr', 'del', 's', 'ins', 'input',
+                   'details', 'summary', 'kbd', 'mark', 'sub', 'sup',
+                   'abbr', 'cite', 'q', 'time', 'dl', 'dt', 'dd', 'u', 'center'], // GitHub互換タグ
     ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'align', 'width', 'height',
-                   'title', 'type', 'checked', 'disabled', 'target', 'rel'],
+                   'title', 'type', 'checked', 'disabled', 'target', 'rel',
+                   'open', 'datetime', 'style',
+                   'colspan', 'rowspan', 'border', 'cellpadding', 'cellspacing'], // GitHub互換属性
     ALLOW_DATA_ATTR: false,
     ALLOW_UNKNOWN_PROTOCOLS: false,
     // 安全なプロトコルを明示的に許可（data:スキームを含む）
