@@ -1087,7 +1087,7 @@
 </head>
 <body data-theme="light">
   <button class="print-button" title="印刷">🖨️</button>
-  <button class="theme-toggle" title="ダークモード切り替え">🌙</button>
+  <button class="theme-toggle" title="ダークモード切り替え">☀️</button>
   <div class="sidebar">
     <nav class="toc"><h2 class="toc-title">目次</h2><ul class="toc-list" id="toc-placeholder"></ul></nav>
   </div>
