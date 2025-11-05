@@ -281,8 +281,9 @@
                    'abbr', 'cite', 'q', 'time', 'dl', 'dt', 'dd', 'u', 'center'], // GitHub互換タグ
     ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'align', 'width', 'height',
                    'title', 'type', 'checked', 'disabled', 'target', 'rel',
-                   'open', 'datetime', 'style',
-                   'colspan', 'rowspan', 'border', 'cellpadding', 'cellspacing'], // GitHub互換属性
+                   'open', 'datetime', 'style', 'clear',
+                   'colspan', 'rowspan', 'border', 'cellpadding', 'cellspacing',
+                   'dir', 'lang', 'name', 'value', 'cite', 'abbr'], // GitHub互換属性
     ALLOW_DATA_ATTR: false,
     ALLOW_UNKNOWN_PROTOCOLS: false,
     // 安全なプロトコルを明示的に許可（data:スキームを含む）
