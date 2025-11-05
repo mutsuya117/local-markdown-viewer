@@ -11,6 +11,9 @@
   // 生のMarkdownテキストを取得
   let markdownText = document.body.textContent;
 
+  // Mermaidの元のコードを保存するMap（エクスポート用）
+  const mermaidCodeMap = new Map();
+
   // localStorageから保存されたKaTeX設定を取得（デフォルト: ON）
   // セキュリティ: ホワイトリスト検証
   const rawKatexEnabled = localStorage.getItem('markdown-katex-enabled');
@@ -94,6 +97,9 @@
     return `<h${level} id="${slug}">${text}</h${level}>\n`;
   };
 
+  // Mermaidコードブロックのカウンター
+  let mermaidCounter = 0;
+
   // コードブロックのレンダラーをカスタマイズ（Mermaid対応）
   const originalCode = renderer.code.bind(renderer);
   renderer.code = function(code, language) {
@@ -101,7 +107,13 @@
     if (language === 'mermaid') {
       // mermaidクラスを持つdivとして出力（後でMermaidライブラリが描画）
       const escapedCode = escapeHtml(code);
-      return `<div class="mermaid">${escapedCode}</div>\n`;
+
+      // ユニークなIDを生成してMapに元のコードを保存
+      const mermaidId = `mermaid-source-${mermaidCounter}`;
+      mermaidCodeMap.set(mermaidId, code);
+      mermaidCounter++;
+
+      return `<div class="mermaid" data-mermaid-id="${mermaidId}">${escapedCode}</div>\n`;
     }
     // それ以外は通常のコードブロック
     return originalCode(code, language);
@@ -471,6 +483,27 @@
       }
     });
 
+    // MermaidのSVGを元のコードブロックに戻す（エクスポートHTML内でMermaidが再描画するため）
+    // インデックスベースで復元（属性はMermaidライブラリによって削除される可能性があるため）
+    const mermaidDivs = tempDiv.querySelectorAll('.mermaid');
+    const mermaidCodes = Array.from(mermaidCodeMap.values());
+
+    mermaidDivs.forEach((mermaidDiv, index) => {
+      if (index < mermaidCodes.length) {
+        const code = mermaidCodes[index];
+
+        // 中身を完全にクリアして、元のテキストコードのみにする
+        // textContentを使うことで、Mermaidライブラリが生のテキストとして認識できる
+        mermaidDiv.innerHTML = ''; // 既存のSVGを削除
+        mermaidDiv.textContent = code; // 生のテキストコードを設定
+
+        // 不要な属性を削除
+        mermaidDiv.removeAttribute('data-mermaid-id');
+        mermaidDiv.removeAttribute('data-processed');
+        mermaidDiv.removeAttribute('id');
+      }
+    });
+
     renderedContent = tempDiv.innerHTML;
 
     // ファイル名を取得（拡張子なし）
@@ -484,11 +517,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; img-src data: https: http:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src data: https://cdn.jsdelivr.net; script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none';">
+        content="default-src 'self'; img-src data: https: http:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src data: https://cdn.jsdelivr.net; script-src 'unsafe-inline' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; form-action 'none';">
   <title>${escapeHtml(fileName)} - Markdown Preview</title>
 
   <!-- KaTeX CSS -->
   ${currentKatexEnabled ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">' : ''}
+
+  <!-- Mermaid JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js"></script>
 
   <style>
     /* GitHub Markdown Style */
@@ -1096,7 +1132,7 @@
     <article class="markdown-body" id="content-placeholder"></article>
   </div>
 
-  <!-- エクスポートHTML用：既にレンダリング済みのコンテンツを使用するため、ライブラリの読み込みは不要 -->
+  <!-- エクスポートHTML用スクリプト -->
   <script>
     (function() {
       'use strict';
@@ -1208,6 +1244,63 @@
           const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
           document.body.setAttribute('data-theme', newTheme);
           themeToggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        });
+      }
+
+      // Mermaidダイアグラムの初期化と描画
+      if (typeof mermaid !== 'undefined') {
+        // Mermaidの設定（デフォルトテーマを使用）
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'strict',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif'
+        });
+
+        // 元のMermaidコードを保存
+        const mermaidOriginalCodes = [];
+        const mermaidElements = document.querySelectorAll('.mermaid');
+        mermaidElements.forEach(function(element) {
+          mermaidOriginalCodes.push(element.textContent);
+        });
+
+        // Mermaidダイアグラムを描画する関数
+        function renderMermaid() {
+          const elements = document.querySelectorAll('.mermaid');
+          if (elements.length > 0) {
+            // 既存のSVGをクリアして元のコードに戻す
+            elements.forEach(function(element, index) {
+              if (index < mermaidOriginalCodes.length) {
+                element.innerHTML = '';
+                element.textContent = mermaidOriginalCodes[index];
+                element.removeAttribute('data-processed');
+              }
+            });
+
+            // 再描画を実行
+            mermaid.run({
+              querySelector: '.mermaid'
+            }).catch(function(err) {
+              console.error('Mermaid rendering error:', err);
+            });
+          }
+        }
+
+        // 初回描画
+        if (mermaidElements.length > 0) {
+          mermaidElements.forEach(function(element, index) {
+            element.setAttribute('id', 'mermaid-diagram-' + index);
+          });
+          renderMermaid();
+        }
+
+        // ウィンドウリサイズ時に再描画（debounce処理付き）
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function() {
+            renderMermaid();
+          }, 300); // 300ms後に再描画
         });
       }
     })();
@@ -2180,21 +2273,52 @@
 
     mermaid.initialize(mermaidConfig);
 
-    // Mermaidダイアグラムを描画
+    // 元のMermaidコードを保存（リサイズ時の再描画用）
+    const mermaidOriginalCodes = [];
     const mermaidElements = document.querySelectorAll('.mermaid');
+    mermaidElements.forEach((element) => {
+      mermaidOriginalCodes.push(element.textContent);
+    });
+
+    // Mermaidダイアグラムを描画する関数
+    function renderMermaidDiagrams() {
+      const elements = document.querySelectorAll('.mermaid');
+      if (elements.length > 0) {
+        // 既存のSVGをクリアして元のコードに戻す
+        elements.forEach((element, index) => {
+          if (index < mermaidOriginalCodes.length) {
+            element.innerHTML = '';
+            element.textContent = mermaidOriginalCodes[index];
+            element.removeAttribute('data-processed');
+          }
+        });
+
+        // 描画を実行
+        mermaid.run({
+          querySelector: '.mermaid'
+        }).catch(err => {
+          // Mermaid描画エラーは無視（ページ表示は継続）
+        });
+      }
+    }
+
+    // 初回描画
     if (mermaidElements.length > 0) {
       mermaidElements.forEach((element, index) => {
         const id = `mermaid-diagram-${index}`;
         element.setAttribute('id', id);
       });
-
-      // 描画を実行
-      mermaid.run({
-        querySelector: '.mermaid'
-      }).catch(err => {
-        // Mermaid描画エラーは無視（ページ表示は継続）
-      });
+      renderMermaidDiagrams();
     }
+
+    // ウィンドウリサイズ時に再描画（debounce処理付き）
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        renderMermaidDiagrams();
+      }, 300); // 300ms後に再描画
+    });
   }
 
 })();

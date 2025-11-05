@@ -195,21 +195,7 @@ console.log("Hello, World!");
 
 ---
 
-### 11. 見出しを使ったXSS攻撃
-
-# <script>alert('H1攻撃')</script>見出し1
-
-## <img src=x onerror="alert('H2攻撃')">見出し2
-
-### <a href="javascript:alert('H3攻撃')">見出し3</a>
-
-**期待される結果**:
-- ✅ 見出しテキストから危険なタグが削除される
-- ✅ アラートは表示されない
-
----
-
-### 12. ファイル名を使ったXSS攻撃
+### 11. ファイル名を使ったXSS攻撃
 
 このテストファイルのパスに攻撃コードが含まれている場合でも、エスケープ処理により無害化されます。
 
@@ -221,6 +207,159 @@ console.log("Hello, World!");
 
 ---
 
+### 12. 見出しを使ったXSS攻撃
+
+以下は攻撃コードを含む見出しのテストです（Markdown見出しとしてレンダリング）：
+
+#### <script>alert('H4攻撃')</script>見出しレベル4
+
+##### <img src=x onerror="alert('H5攻撃')">見出しレベル5
+
+###### <a href="javascript:alert('H6攻撃')">見出しレベル6</a>
+
+**期待される結果**:
+- ✅ 見出しテキストから危険なタグが削除される
+- ✅ アラートは表示されない
+- ✅ 目次に表示される（h4-h6レベル）
+
+---
+
+## 🔷 Mermaid セキュリティテスト
+
+Mermaid v11.12.1 は `securityLevel: 'strict'` 設定により、JavaScriptの実行を防止します。
+
+### 13. Mermaid クリックイベント攻撃
+
+```mermaid
+graph TD
+    A[クリック禁止] -->|クリック| B[アラート発生？]
+    click A "javascript:alert('XSS攻撃27: Mermaidクリック')"
+    click B call alert('XSS攻撃28')
+```
+
+**期待される結果**:
+- ✅ `securityLevel: 'strict'` により click イベントが無効化される
+- ✅ ノードをクリックしてもアラートは表示されない
+
+---
+
+### 14. Mermaid URL スキーム攻撃
+
+```mermaid
+flowchart LR
+    A[リンク] --> B[外部サイト]
+    click A "javascript:alert('XSS攻撃29')"
+    click B href "javascript:void(alert('XSS攻撃30'))"
+```
+
+**期待される結果**:
+- ✅ `javascript:` スキームが無効化される
+- ✅ クリックしてもスクリプトは実行されない
+
+---
+
+### 15. Mermaid ノード内での攻撃コード
+
+```mermaid
+graph TD
+    A["<a href='javascript:alert(31)'>クリック</a>"] --> B["<button onclick='alert(32)'>ボタン</button>"]
+    B --> C["正常なノード"]
+```
+
+**期待される結果**:
+- ✅ ノード内のHTMLタグがエスケープされて文字列として表示される
+- ✅ リンクやボタンは実行可能な要素として描画されない
+- ✅ スクリプトは実行されない
+
+---
+
+### 16. Mermaid HTML インジェクション
+
+```mermaid
+graph TD
+    A["<script>alert('XSS攻撃32')</script>"]
+    B["<img src=x onerror=alert('XSS攻撃33')>"]
+    C["<iframe src='javascript:alert(34)'></iframe>"]
+    A --> B --> C
+```
+
+**期待される結果**:
+- ✅ ノード内のHTMLタグがエスケープされて文字列として表示される
+- ✅ スクリプトは実行されない
+
+---
+
+### 17. Mermaid エッジラベルでの攻撃
+
+```mermaid
+graph LR
+    A[ノード1] -->|"<script>alert('XSS攻撃35')</script>"| B[ノード2]
+    B -->|"<img src=x onerror=alert('XSS攻撃36')>"| C[ノード3]
+    style A fill:#f9f,stroke:#333,stroke-width:4px
+    style B fill:#ff9,stroke:#333
+```
+
+**期待される結果**:
+- ✅ エッジラベル内のHTMLタグがエスケープされて文字列として表示される
+- ✅ スクリプトは実行されない
+- ✅ ノードのスタイルは正常に適用される
+
+---
+
+### 18. Mermaid テキストエスケープテスト
+
+```mermaid
+pie title "<script>alert('XSS攻撃36')</script>"
+    "正常" : 50
+    "データ<img src=x onerror=alert('XSS攻撃37')>" : 30
+    "その他" : 20
+```
+
+**期待される結果**:
+- ✅ タイトルとラベル内のHTMLタグがエスケープされる
+- ✅ スクリプトは実行されない
+
+---
+
+### 19. Mermaid 状態遷移図での攻撃
+
+```mermaid
+stateDiagram-v2
+    [*] --> State1
+    State1 --> State2: <script>alert('XSS攻撃38')</script>
+    State2 --> State3: <img src=x onerror=alert('XSS攻撃39')>
+    State3 --> [*]
+
+    state "ログイン<iframe src='javascript:alert(40)'></iframe>" as State1
+    state "アクティブ" as State2
+    state "ログアウト" as State3
+```
+
+**期待される結果**:
+- ✅ 状態遷移図が正しく描画される
+- ✅ トランジションラベルと状態名内のHTMLタグがエスケープされて文字列として表示される
+- ✅ スクリプトは実行されない
+- ✅ `securityLevel: 'strict'` が保護する
+
+---
+
+### 20. Mermaid ガントチャートでの攻撃
+
+```mermaid
+gantt
+    title <script>alert('XSS攻撃40')</script>
+    dateFormat YYYY-MM-DD
+    section テスト<img src=x onerror=alert('XSS攻撃41')>
+    タスク1 :done, task1, 2024-01-01, 3d
+    タスク2<script>alert('XSS攻撃42')</script> :active, task2, 2024-01-04, 2d
+```
+
+**期待される結果**:
+- ✅ タイトル、セクション名、タスク名内のHTMLタグがエスケープされる
+- ✅ スクリプトは実行されない
+
+---
+
 ## 📊 セキュリティチェック結果
 
 以下の条件をすべて満たしていることを確認してください：
@@ -228,7 +367,7 @@ console.log("Hello, World!");
 ### ✅ 必須条件
 
 1. **アラートは一切表示されない**
-   - 上記のすべての攻撃コードでアラートが表示されないこと
+   - 上記のすべての攻撃コード（テスト1-20）でアラートが表示されないこと
 
 2. **ページは正常に表示される**
    - 安全なコンテンツ（段落、リスト、テーブルなど）は正常に表示される
@@ -268,4 +407,5 @@ document.querySelectorAll('[onclick], [onerror], [onload]').length
 
 - ✅ DOMPurifyが正しくXSS攻撃を防いでいる
 - ✅ CSPが追加の防御層として機能している
+- ✅ Mermaid `securityLevel: 'strict'` がスクリプト実行を防いでいる
 - ✅ ユーザーが提供したMarkdownコンテンツを安全に表示できる
