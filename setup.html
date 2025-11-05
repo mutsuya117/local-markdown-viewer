@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Markdown Viewer - セットアップガイド</title>
+  <title id="pageTitle">Local Markdown Viewer - Setup Guide</title>
   <style>
     * {
       margin: 0;
@@ -246,95 +246,74 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="icons/icon128.png" alt="Local Markdown Viewer アイコン" class="icon">
+      <img src="icons/icon128.png" alt="Local Markdown Viewer Icon" class="icon">
       <h1>Local Markdown Viewer</h1>
-      <p>インストールありがとうございます！</p>
+      <p id="thankYouText"></p>
     </div>
 
     <div class="step important">
       <span class="step-number">!</span>
-      <h2>重要な設定が必要です</h2>
-      <p>
-        この拡張機能を使用するには、<strong>「ファイルのURLへのアクセスを許可する」</strong>設定を有効にする必要があります。
-      </p>
+      <h2 id="importantTitle"></h2>
+      <p id="importantDesc"></p>
     </div>
 
     <div class="step">
       <span class="step-number">1</span>
-      <h2>拡張機能の管理ページを開く</h2>
-      <p>
-        以下のボタンをクリックして、拡張機能の管理ページを開きます。
-      </p>
-      <p style="margin-left: 44px; font-size: 14px; color: #57606a; margin-top: 8px;">
-        または、Chromeのアドレスバーに <code>chrome://extensions/</code> を入力してEnterキーを押すこともできます。
-      </p>
+      <h2 id="step1Title"></h2>
+      <p id="step1Desc"></p>
+      <p id="step1Note" style="margin-left: 44px; font-size: 14px; color: #57606a; margin-top: 8px;"></p>
       <div class="step-button">
-        <button id="openExtensionsBtn" class="btn">拡張機能の管理ページを開く</button>
+        <button id="openExtensionsBtn" class="btn"></button>
       </div>
     </div>
 
     <div class="step">
       <span class="step-number">2</span>
-      <h2>Local Markdown Viewerを見つける</h2>
-      <p>
-        拡張機能の一覧から「Local Markdown Viewer」を探します。
-      </p>
+      <h2 id="step2Title"></h2>
+      <p id="step2Desc"></p>
     </div>
 
     <div class="step">
       <span class="step-number">3</span>
-      <h2>詳細ボタンをクリック</h2>
-      <p>
-        「Local Markdown Viewer」カードの中にある<strong>「詳細」</strong>ボタンをクリックします。
-      </p>
+      <h2 id="step3Title"></h2>
+      <p id="step3Desc"></p>
     </div>
 
     <div class="step">
       <span class="step-number">4</span>
-      <h2>ファイルアクセスを許可する</h2>
-      <p>
-        「ファイルのURLへのアクセスを許可する」のスイッチを<strong>ON</strong>にします。
-      </p>
+      <h2 id="step4Title"></h2>
+      <p id="step4Desc"></p>
 
       <div class="detail-box">
-        <p><strong>この設定は何をするのか？</strong></p>
-        <p>
-          この設定を有効にすると、Local Markdown Viewerが<code>file://</code>プロトコル（ローカルファイル）で開かれたページにアクセスできるようになります。
-          具体的には、あなたのパソコン内の<code>.md</code>や<code>.markdown</code>ファイルをChromeで開いたときに、この拡張機能がMarkdown形式のテキストを読み取り、HTMLに変換して美しく表示します。
-        </p>
-        <p><strong>なぜ必要なのか？</strong></p>
-        <p>
-          Chromeはセキュリティ上の理由から、デフォルトでは拡張機能がローカルファイルにアクセスすることを禁止しています。
-          この拡張機能はローカルファイルを表示するためのものなので、明示的にユーザー（あなた）が許可する必要があります。
-        </p>
+        <p id="whatIsThisTitle"></p>
+        <p id="whatIsThisDesc"></p>
+        <p id="whyNeededTitle"></p>
+        <p id="whyNeededDesc"></p>
       </div>
 
       <div class="safety-info">
-        <h3>安全性について</h3>
+        <h3 id="safetyTitle"></h3>
         <ul>
-          <li><strong>ファイル内容を外部に送信しません</strong> - あなたのMarkdownファイルの内容がインターネットに送信されることはありません</li>
-          <li><strong>読み取り専用です</strong> - ファイルの内容を変更・削除・上書きすることは一切ありません</li>
-          <li><strong>表示のみを行います</strong> - 開いたMarkdownファイルのテキストを読み取り、HTML形式に変換して表示するだけです</li>
-          <li><strong>Markdownファイルに記載された内容のみを表示</strong> - Markdownファイル内に画像リンク（<code>![](image.png)</code>など）がある場合、その画像を表示しますが、記載されていないファイルに勝手にアクセスすることはありません</li>
-          <li><strong>プライバシーを尊重します</strong> - データ収集、トラッキング、広告表示は一切行いません</li>
-          <li><strong>オープンソースです</strong> - すべてのコードは公開されており、動作を確認できます</li>
+          <li id="safety1"></li>
+          <li id="safety2"></li>
+          <li id="safety3"></li>
+          <li id="safety4"></li>
+          <li id="safety5"></li>
+          <li id="safety6"></li>
         </ul>
       </div>
     </div>
 
     <div class="step success">
       <span class="step-number">✓</span>
-      <h2>設定完了！</h2>
-      <p>
-        これで、ローカルの<code>.md</code>または<code>.markdown</code>ファイルをChromeで開くと、GitHubスタイルで美しく表示されます。
-      </p>
+      <h2 id="completeTitle"></h2>
+      <p id="completeDesc"></p>
     </div>
 
     <div class="note">
       <p>
-        <strong>使い方：</strong>
-        Markdownファイル（<code>.md</code>または<code>.markdown</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。
-        または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。
+        <strong id="usageTitle"></strong>
+        <span id="usageDesc"></span>
       </p>
     </div>
   </div>

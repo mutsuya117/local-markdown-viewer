@@ -1,0 +1,154 @@
+{
+  "extName": {
+    "message": "Local Markdown Viewer",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Preview local Markdown files with beautiful GitHub-style rendering",
+    "description": "Extension description"
+  },
+  "toc": {
+    "message": "Table of Contents",
+    "description": "Table of Contents title"
+  },
+  "externalLink": {
+    "message": "External link: ",
+    "description": "Prefix shown in tooltip for external links"
+  },
+  "print": {
+    "message": "Print",
+    "description": "Print button tooltip"
+  },
+  "toggleTheme": {
+    "message": "Toggle dark mode",
+    "description": "Dark mode toggle button tooltip"
+  },
+  "exportHtml": {
+    "message": "Export to HTML",
+    "description": "Export button tooltip"
+  },
+  "toggleKatex": {
+    "message": "Toggle KaTeX math rendering",
+    "description": "KaTeX toggle button tooltip"
+  },
+  "exportFailed": {
+    "message": "Export failed: ",
+    "description": "Error message prefix when export fails"
+  },
+  "setupTitle": {
+    "message": "Local Markdown Viewer - Setup Guide",
+    "description": "Setup page title"
+  },
+  "setupThankYou": {
+    "message": "Thank you for installing!",
+    "description": "Setup page subtitle"
+  },
+  "setupImportant": {
+    "message": "Important Configuration Required",
+    "description": "Important setup step title"
+  },
+  "setupImportantDesc": {
+    "message": "To use this extension, you need to enable <strong>\"Allow access to file URLs\"</strong> setting.",
+    "description": "Important setup description"
+  },
+  "setupStep1Title": {
+    "message": "Open Extensions Management Page",
+    "description": "Step 1 title"
+  },
+  "setupStep1Desc": {
+    "message": "Click the button below to open the extensions management page.",
+    "description": "Step 1 description"
+  },
+  "setupStep1Note": {
+    "message": "Alternatively, you can type <code>chrome://extensions/</code> in Chrome's address bar and press Enter.",
+    "description": "Step 1 note"
+  },
+  "setupStep1Button": {
+    "message": "Open Extensions Management Page",
+    "description": "Step 1 button text"
+  },
+  "setupStep2Title": {
+    "message": "Find Local Markdown Viewer",
+    "description": "Step 2 title"
+  },
+  "setupStep2Desc": {
+    "message": "Look for \"Local Markdown Viewer\" in the extensions list.",
+    "description": "Step 2 description"
+  },
+  "setupStep3Title": {
+    "message": "Click Details Button",
+    "description": "Step 3 title"
+  },
+  "setupStep3Desc": {
+    "message": "Click the <strong>\"Details\"</strong> button on the \"Local Markdown Viewer\" card.",
+    "description": "Step 3 description"
+  },
+  "setupStep4Title": {
+    "message": "Allow File Access",
+    "description": "Step 4 title"
+  },
+  "setupStep4Desc": {
+    "message": "Turn <strong>ON</strong> the \"Allow access to file URLs\" switch.",
+    "description": "Step 4 description"
+  },
+  "setupWhatIsThis": {
+    "message": "What does this setting do?",
+    "description": "What is this section title"
+  },
+  "setupWhatIsThisDesc": {
+    "message": "Enabling this setting allows Local Markdown Viewer to access pages opened with the <code>file://</code> protocol (local files). Specifically, when you open a <code>.md</code> or <code>.markdown</code> file on your computer in Chrome, this extension can read the Markdown text, convert it to HTML, and display it beautifully.",
+    "description": "What is this description"
+  },
+  "setupWhyNeeded": {
+    "message": "Why is this needed?",
+    "description": "Why needed section title"
+  },
+  "setupWhyNeededDesc": {
+    "message": "For security reasons, Chrome prohibits extensions from accessing local files by default. Since this extension is designed to display local files, you (the user) must explicitly grant permission.",
+    "description": "Why needed description"
+  },
+  "setupSafetyTitle": {
+    "message": "About Safety",
+    "description": "Safety section title"
+  },
+  "setupSafety1": {
+    "message": "<strong>No file content is sent externally</strong> - Your Markdown file content will never be transmitted to the internet",
+    "description": "Safety point 1"
+  },
+  "setupSafety2": {
+    "message": "<strong>Read-only</strong> - Files are never modified, deleted, or overwritten",
+    "description": "Safety point 2"
+  },
+  "setupSafety3": {
+    "message": "<strong>Display only</strong> - Simply reads opened Markdown files, converts them to HTML format, and displays them",
+    "description": "Safety point 3"
+  },
+  "setupSafety4": {
+    "message": "<strong>Only displays content in Markdown files</strong> - If a Markdown file contains image links (e.g., <code>![](image.png)</code>), those images are displayed, but files not referenced will not be accessed",
+    "description": "Safety point 4"
+  },
+  "setupSafety5": {
+    "message": "<strong>Respects your privacy</strong> - No data collection, tracking, or advertising whatsoever",
+    "description": "Safety point 5"
+  },
+  "setupSafety6": {
+    "message": "<strong>Open source</strong> - All code is publicly available and verifiable",
+    "description": "Safety point 6"
+  },
+  "setupCompleteTitle": {
+    "message": "Setup Complete!",
+    "description": "Setup complete title"
+  },
+  "setupCompleteDesc": {
+    "message": "Now, when you open a local <code>.md</code> or <code>.markdown</code> file in Chrome, it will be beautifully displayed in GitHub style.",
+    "description": "Setup complete description"
+  },
+  "setupUsageTitle": {
+    "message": "How to use:",
+    "description": "Usage title"
+  },
+  "setupUsageDesc": {
+    "message": "Right-click a Markdown file (<code>.md</code> or <code>.markdown</code>) → \"Open with\" → Select \"Google Chrome\". Alternatively, you can drag and drop the file into Chrome's address bar.",
+    "description": "Usage description"
+  }
+}

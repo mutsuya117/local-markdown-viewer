@@ -1,0 +1,154 @@
+{
+  "extName": {
+    "message": "本地Markdown查看器",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "以GitHub风格优雅预览本地Markdown文件",
+    "description": "扩展描述"
+  },
+  "toc": {
+    "message": "目录",
+    "description": "目录（Table of Contents）标题"
+  },
+  "externalLink": {
+    "message": "外部链接：",
+    "description": "外部链接工具提示中显示的前缀"
+  },
+  "print": {
+    "message": "打印",
+    "description": "打印按钮工具提示"
+  },
+  "toggleTheme": {
+    "message": "切换深色模式",
+    "description": "深色模式切换按钮工具提示"
+  },
+  "exportHtml": {
+    "message": "导出为HTML",
+    "description": "导出按钮工具提示"
+  },
+  "toggleKatex": {
+    "message": "切换KaTeX数学公式渲染",
+    "description": "KaTeX切换按钮工具提示"
+  },
+  "exportFailed": {
+    "message": "导出失败：",
+    "description": "导出失败时的错误消息前缀"
+  },
+  "setupTitle": {
+    "message": "本地Markdown查看器 - 设置向导",
+    "description": "设置页面标题"
+  },
+  "setupThankYou": {
+    "message": "感谢安装！",
+    "description": "设置页面副标题"
+  },
+  "setupImportant": {
+    "message": "需要重要配置",
+    "description": "重要设置步骤标题"
+  },
+  "setupImportantDesc": {
+    "message": "要使用此扩展，您需要启用<strong>\"允许访问文件网址\"</strong>设置。",
+    "description": "重要设置描述"
+  },
+  "setupStep1Title": {
+    "message": "打开扩展管理页面",
+    "description": "步骤1标题"
+  },
+  "setupStep1Desc": {
+    "message": "点击下方按钮打开扩展管理页面。",
+    "description": "步骤1描述"
+  },
+  "setupStep1Note": {
+    "message": "或者，您可以在Chrome地址栏中输入<code>chrome://extensions/</code>并按Enter键。",
+    "description": "步骤1注释"
+  },
+  "setupStep1Button": {
+    "message": "打开扩展管理页面",
+    "description": "步骤1按钮文本"
+  },
+  "setupStep2Title": {
+    "message": "找到本地Markdown查看器",
+    "description": "步骤2标题"
+  },
+  "setupStep2Desc": {
+    "message": "在扩展列表中查找\"本地Markdown查看器\"。",
+    "description": "步骤2描述"
+  },
+  "setupStep3Title": {
+    "message": "点击详情按钮",
+    "description": "步骤3标题"
+  },
+  "setupStep3Desc": {
+    "message": "点击\"本地Markdown查看器\"卡片上的<strong>\"详情\"</strong>按钮。",
+    "description": "步骤3描述"
+  },
+  "setupStep4Title": {
+    "message": "允许文件访问",
+    "description": "步骤4标题"
+  },
+  "setupStep4Desc": {
+    "message": "将\"允许访问文件网址\"开关<strong>打开</strong>。",
+    "description": "步骤4描述"
+  },
+  "setupWhatIsThis": {
+    "message": "此设置有什么作用？",
+    "description": "这是什么部分标题"
+  },
+  "setupWhatIsThisDesc": {
+    "message": "启用此设置后，本地Markdown查看器可以访问使用<code>file://</code>协议（本地文件）打开的页面。具体来说，当您在Chrome中打开计算机上的<code>.md</code>或<code>.markdown</code>文件时，此扩展可以读取Markdown文本，将其转换为HTML并精美显示。",
+    "description": "这是什么描述"
+  },
+  "setupWhyNeeded": {
+    "message": "为什么需要这样做？",
+    "description": "为什么需要部分标题"
+  },
+  "setupWhyNeededDesc": {
+    "message": "出于安全考虑，Chrome默认禁止扩展访问本地文件。由于此扩展旨在显示本地文件，因此您（用户）必须明确授予权限。",
+    "description": "为什么需要描述"
+  },
+  "setupSafetyTitle": {
+    "message": "关于安全性",
+    "description": "安全性部分标题"
+  },
+  "setupSafety1": {
+    "message": "<strong>不会向外部发送文件内容</strong> - 您的Markdown文件内容永远不会传输到互联网",
+    "description": "安全要点1"
+  },
+  "setupSafety2": {
+    "message": "<strong>只读</strong> - 文件永远不会被修改、删除或覆盖",
+    "description": "安全要点2"
+  },
+  "setupSafety3": {
+    "message": "<strong>仅显示</strong> - 只是读取打开的Markdown文件，将其转换为HTML格式并显示",
+    "description": "安全要点3"
+  },
+  "setupSafety4": {
+    "message": "<strong>仅显示Markdown文件中的内容</strong> - 如果Markdown文件包含图像链接（例如<code>![](image.png)</code>），则会显示这些图像，但不会访问未引用的文件",
+    "description": "安全要点4"
+  },
+  "setupSafety5": {
+    "message": "<strong>尊重您的隐私</strong> - 完全不进行数据收集、跟踪或广告",
+    "description": "安全要点5"
+  },
+  "setupSafety6": {
+    "message": "<strong>开源</strong> - 所有代码均公开可验证",
+    "description": "安全要点6"
+  },
+  "setupCompleteTitle": {
+    "message": "设置完成！",
+    "description": "设置完成标题"
+  },
+  "setupCompleteDesc": {
+    "message": "现在，当您在Chrome中打开本地<code>.md</code>或<code>.markdown</code>文件时，它将以GitHub风格精美显示。",
+    "description": "设置完成描述"
+  },
+  "setupUsageTitle": {
+    "message": "使用方法：",
+    "description": "使用标题"
+  },
+  "setupUsageDesc": {
+    "message": "右键单击Markdown文件（<code>.md</code>或<code>.markdown</code>）→\"打开方式\"→选择\"Google Chrome\"。或者，您可以将文件拖放到Chrome的地址栏中。",
+    "description": "使用描述"
+  }
+}

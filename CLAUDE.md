@@ -15,7 +15,7 @@
 
 - **プロジェクト名**: Local Markdown Viewer
 - **種類**: Chrome拡張機能
-- **対象ユーザー**: 日本語ユーザー（日本語のみサポート）
+- **対象ユーザー**: グローバルユーザー（日本語、英語、中国語簡体字に対応）
 - **目的**: ローカルのMarkdownファイル（.md, .markdown）をGitHubスタイルで美しくプレビュー表示する
 
 ## 技術スタック
@@ -45,6 +45,13 @@ C:\work\chrome_extention\local-markdown-viewer\
 ├── content.js            # メインのコンテンツスクリプト
 ├── background.js         # Background Service Worker（画像Base64変換用）
 ├── README.md             # プロジェクトドキュメント（日本語）
+├── _locales/             # 多言語対応（i18n）ディレクトリ
+│   ├── en/              # 英語（デフォルト）
+│   │   └── messages.json
+│   ├── ja/              # 日本語
+│   │   └── messages.json
+│   └── zh_CN/           # 中国語簡体字
+│       └── messages.json
 ├── icons/                # 拡張機能のアイコン（16, 32, 48, 128px）
 ├── libs/                 # サードパーティライブラリ
 │   ├── marked.min.js

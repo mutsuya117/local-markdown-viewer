@@ -1,0 +1,154 @@
+{
+  "extName": {
+    "message": "Local Markdown Viewer",
+    "description": "拡張機能の名前"
+  },
+  "extDescription": {
+    "message": "ローカルのMarkdownファイルをGitHubスタイルで美しくプレビュー表示します",
+    "description": "拡張機能の説明"
+  },
+  "toc": {
+    "message": "目次",
+    "description": "目次（Table of Contents）のタイトル"
+  },
+  "externalLink": {
+    "message": "外部リンク: ",
+    "description": "外部リンクのツールチップに表示されるプレフィックス"
+  },
+  "print": {
+    "message": "印刷",
+    "description": "印刷ボタンのツールチップ"
+  },
+  "toggleTheme": {
+    "message": "ダークモード切り替え",
+    "description": "ダークモード切り替えボタンのツールチップ"
+  },
+  "exportHtml": {
+    "message": "HTMLにエクスポート",
+    "description": "エクスポートボタンのツールチップ"
+  },
+  "toggleKatex": {
+    "message": "KaTeX数式レンダリング切り替え",
+    "description": "KaTeX切り替えボタンのツールチップ"
+  },
+  "exportFailed": {
+    "message": "エクスポートに失敗しました: ",
+    "description": "エクスポート失敗時のエラーメッセージプレフィックス"
+  },
+  "setupTitle": {
+    "message": "Local Markdown Viewer - セットアップガイド",
+    "description": "セットアップページのタイトル"
+  },
+  "setupThankYou": {
+    "message": "インストールありがとうございます！",
+    "description": "セットアップページのサブタイトル"
+  },
+  "setupImportant": {
+    "message": "重要な設定が必要です",
+    "description": "重要な設定ステップのタイトル"
+  },
+  "setupImportantDesc": {
+    "message": "この拡張機能を使用するには、<strong>「ファイルのURLへのアクセスを許可する」</strong>設定を有効にする必要があります。",
+    "description": "重要な設定の説明"
+  },
+  "setupStep1Title": {
+    "message": "拡張機能の管理ページを開く",
+    "description": "ステップ1のタイトル"
+  },
+  "setupStep1Desc": {
+    "message": "以下のボタンをクリックして、拡張機能の管理ページを開きます。",
+    "description": "ステップ1の説明"
+  },
+  "setupStep1Note": {
+    "message": "または、Chromeのアドレスバーに <code>chrome://extensions/</code> を入力してEnterキーを押すこともできます。",
+    "description": "ステップ1の補足"
+  },
+  "setupStep1Button": {
+    "message": "拡張機能の管理ページを開く",
+    "description": "ステップ1のボタンテキスト"
+  },
+  "setupStep2Title": {
+    "message": "Local Markdown Viewerを見つける",
+    "description": "ステップ2のタイトル"
+  },
+  "setupStep2Desc": {
+    "message": "拡張機能の一覧から「Local Markdown Viewer」を探します。",
+    "description": "ステップ2の説明"
+  },
+  "setupStep3Title": {
+    "message": "詳細ボタンをクリック",
+    "description": "ステップ3のタイトル"
+  },
+  "setupStep3Desc": {
+    "message": "「Local Markdown Viewer」カードの中にある<strong>「詳細」</strong>ボタンをクリックします。",
+    "description": "ステップ3の説明"
+  },
+  "setupStep4Title": {
+    "message": "ファイルアクセスを許可する",
+    "description": "ステップ4のタイトル"
+  },
+  "setupStep4Desc": {
+    "message": "「ファイルのURLへのアクセスを許可する」のスイッチを<strong>ON</strong>にします。",
+    "description": "ステップ4の説明"
+  },
+  "setupWhatIsThis": {
+    "message": "この設定は何をするのか？",
+    "description": "設定の説明セクション - タイトル"
+  },
+  "setupWhatIsThisDesc": {
+    "message": "この設定を有効にすると、Local Markdown Viewerが<code>file://</code>プロトコル（ローカルファイル）で開かれたページにアクセスできるようになります。具体的には、あなたのパソコン内の<code>.md</code>や<code>.markdown</code>ファイルをChromeで開いたときに、この拡張機能がMarkdown形式のテキストを読み取り、HTMLに変換して美しく表示します。",
+    "description": "設定の説明"
+  },
+  "setupWhyNeeded": {
+    "message": "なぜ必要なのか？",
+    "description": "なぜ必要かのセクション - タイトル"
+  },
+  "setupWhyNeededDesc": {
+    "message": "Chromeはセキュリティ上の理由から、デフォルトでは拡張機能がローカルファイルにアクセスすることを禁止しています。この拡張機能はローカルファイルを表示するためのものなので、明示的にユーザー（あなた）が許可する必要があります。",
+    "description": "なぜ必要かの説明"
+  },
+  "setupSafetyTitle": {
+    "message": "安全性について",
+    "description": "安全性セクションのタイトル"
+  },
+  "setupSafety1": {
+    "message": "<strong>ファイル内容を外部に送信しません</strong> - あなたのMarkdownファイルの内容がインターネットに送信されることはありません",
+    "description": "安全性の説明1"
+  },
+  "setupSafety2": {
+    "message": "<strong>読み取り専用です</strong> - ファイルの内容を変更・削除・上書きすることは一切ありません",
+    "description": "安全性の説明2"
+  },
+  "setupSafety3": {
+    "message": "<strong>表示のみを行います</strong> - 開いたMarkdownファイルのテキストを読み取り、HTML形式に変換して表示するだけです",
+    "description": "安全性の説明3"
+  },
+  "setupSafety4": {
+    "message": "<strong>Markdownファイルに記載された内容のみを表示</strong> - Markdownファイル内に画像リンク（<code>![](image.png)</code>など）がある場合、その画像を表示しますが、記載されていないファイルに勝手にアクセスすることはありません",
+    "description": "安全性の説明4"
+  },
+  "setupSafety5": {
+    "message": "<strong>プライバシーを尊重します</strong> - データ収集、トラッキング、広告表示は一切行いません",
+    "description": "安全性の説明5"
+  },
+  "setupSafety6": {
+    "message": "<strong>オープンソースです</strong> - すべてのコードは公開されており、動作を確認できます",
+    "description": "安全性の説明6"
+  },
+  "setupCompleteTitle": {
+    "message": "設定完了！",
+    "description": "設定完了のタイトル"
+  },
+  "setupCompleteDesc": {
+    "message": "これで、ローカルの<code>.md</code>または<code>.markdown</code>ファイルをChromeで開くと、GitHubスタイルで美しく表示されます。",
+    "description": "設定完了の説明"
+  },
+  "setupUsageTitle": {
+    "message": "使い方：",
+    "description": "使い方のタイトル"
+  },
+  "setupUsageDesc": {
+    "message": "Markdownファイル（<code>.md</code>または<code>.markdown</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。",
+    "description": "使い方の説明"
+  }
+}

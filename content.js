@@ -229,7 +229,7 @@
       const href = node.getAttribute('href');
       if (href && href.match(/^https?:\/\//i)) {
         // href値をエスケープしてtitle属性に設定（セキュリティ対策）
-        node.setAttribute('title', '外部リンク: ' + escapeHtml(href));
+        node.setAttribute('title', chrome.i18n.getMessage('externalLink') + escapeHtml(href));
         node.setAttribute('target', '_blank');
         node.setAttribute('rel', 'noopener noreferrer');
       }
@@ -354,7 +354,7 @@
     });
 
     // TOCを生成（シンプルなフラットリスト方式）
-    let tocHtml = '<nav class="toc"><h2 class="toc-title">目次</h2><ul class="toc-list">';
+    let tocHtml = '<nav class="toc"><h2 class="toc-title">' + chrome.i18n.getMessage('toc') + '</h2><ul class="toc-list">';
 
     headings.forEach((heading) => {
       const level = parseInt(heading.tagName.substring(1));
@@ -1086,10 +1086,10 @@
   </style>
 </head>
 <body data-theme="light">
-  <button class="print-button" title="印刷">🖨️</button>
-  <button class="theme-toggle" title="ダークモード切り替え">☀️</button>
+  <button class="print-button" title="${chrome.i18n.getMessage('print')}">🖨️</button>
+  <button class="theme-toggle" title="${chrome.i18n.getMessage('toggleTheme')}">☀️</button>
   <div class="sidebar">
-    <nav class="toc"><h2 class="toc-title">目次</h2><ul class="toc-list" id="toc-placeholder"></ul></nav>
+    <nav class="toc"><h2 class="toc-title">${chrome.i18n.getMessage('toc')}</h2><ul class="toc-list" id="toc-placeholder"></ul></nav>
   </div>
   <div class="resize-handle"></div>
   <div class="main-content">
@@ -1927,17 +1927,17 @@
   </style>
 </head>
 <body data-theme="${savedTheme}">
-  <button class="export-button" title="HTMLにエクスポート">
+  <button class="export-button" title="${chrome.i18n.getMessage('exportHtml')}">
     ⬇️
   </button>
-  <button class="print-button" title="印刷">
+  <button class="print-button" title="${chrome.i18n.getMessage('print')}">
     🖨️
   </button>
-  <button class="katex-toggle ${isKatexEnabled ? 'enabled' : ''}" title="KaTeX数式レンダリング切り替え">
+  <button class="katex-toggle ${isKatexEnabled ? 'enabled' : ''}" title="${chrome.i18n.getMessage('toggleKatex')}">
     <span>TeX</span>
     <span>${isKatexEnabled ? 'ON' : 'OFF'}</span>
   </button>
-  <button class="theme-toggle" title="ダークモード切り替え">
+  <button class="theme-toggle" title="${chrome.i18n.getMessage('toggleTheme')}">
     ${isDarkMode ? '🌙' : '☀️'}
   </button>
   <div class="sidebar">
@@ -2088,7 +2088,7 @@
           URL.revokeObjectURL(url);
         }, 100);
       } catch (error) {
-        alert('エクスポートに失敗しました: ' + error.message);
+        alert(chrome.i18n.getMessage('exportFailed') + error.message);
       }
     });
   }
