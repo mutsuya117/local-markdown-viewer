@@ -175,7 +175,7 @@ C:\work\chrome_extention\local-markdown-viewer\
    - 右上にエクスポートボタン（⬇️）を配置
    - スタンドアロンHTMLファイルとしてダウンロード
    - **セキュリティ重視**: 既にレンダリング済みのコンテンツを使用（Markdownを再パースしない）
-   - **軽量**: 必要最小限のCDN（KaTeX CSSのみ）
+   - **軽量**: 必要最小限のCDN（Mermaid JS、KaTeX CSS）
    - **視認性向上**: js-beautifyでHTMLを整形（インデント・改行を適切に配置）
    - ローカル画像（file://、相対パス）を自動的にBase64として埋め込み
      - 最大ファイルサイズ: 30MB/ファイル
@@ -185,6 +185,7 @@ C:\work\chrome_extention\local-markdown-viewer\
    - エクスポートされたHTMLは目次、ダークモード切り替え、印刷機能を含む
    - KaTeX設定はエクスポート時点の状態で固定
    - Content Security Policy (CSP)による保護
+   - **注意**: 閲覧にはインターネット接続が必要（CDNからライブラリを読み込むため）
 
 9. **UIボタン**
    - すべてのボタンを40px × 40pxの円形に統一

@@ -33,6 +33,7 @@ Local Markdown Viewer 是一个Chrome扩展程序，可以以GitHub样式精美�
 ・一键下载为独立的HTML文件
 ・自动将本地图片嵌入为Base64（支持PNG、JPEG、GIF、WebP、SVG、BMP）
 ・无需扩展程序即可在任何浏览器中查看，非常适合文档共享
+・注意：查看需要互联网连接（从CDN加载Mermaid库和KaTeX CSS）
 
 ■ 多语言支持
 ・支持英语、日语、简体中文

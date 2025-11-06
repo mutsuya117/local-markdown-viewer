@@ -33,6 +33,7 @@ No configuration screen - simple design that works right after installation.
 ・One-click download as standalone HTML file
 ・Automatically embeds local images as Base64 (supports PNG, JPEG, GIF, WebP, SVG, BMP)
 ・Viewable in any browser without the extension, ideal for document sharing
+・Note: Internet connection required for viewing (loads Mermaid library and KaTeX CSS from CDN)
 
 ■ Multilingual Support
 ・Supports English, Japanese, and Simplified Chinese
