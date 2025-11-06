@@ -455,6 +455,29 @@
     return imageMap;
   }
 
+  // HTMLを整形する関数（視認性向上のため）
+  function formatHTML(html) {
+    // js-beautifyを使用してHTMLを整形
+    // html_beautifyはlibs/beautify-html.min.jsから提供される
+    if (typeof html_beautify !== 'undefined') {
+      return html_beautify(html, {
+        indent_size: 2,              // インデントサイズ: 2スペース
+        indent_char: ' ',            // インデント文字: スペース
+        max_preserve_newlines: 1,    // 連続改行の最大数: 1
+        preserve_newlines: true,     // 改行を保持
+        indent_inner_html: true,     // <head>と<body>の内側もインデント
+        wrap_line_length: 0,         // 行の折り返しなし
+        end_with_newline: false,     // 末尾に改行を追加しない
+        unformatted: ['code', 'pre', 'textarea'], // 整形しないタグ
+        content_unformatted: ['pre', 'textarea'], // 内容を整形しないタグ
+        extra_liners: []             // 追加の改行を入れないタグ
+      });
+    }
+
+    // フォールバック（js-beautifyが利用できない場合）
+    return html;
+  }
+
   // スタンドアロンHTMLを生成する関数（エクスポート用）
   function generateExportHTML(currentKatexEnabled, imageMap) {
     // セキュリティ: 既にレンダリング済みのHTMLコンテンツを使用
@@ -505,6 +528,10 @@
     });
 
     renderedContent = tempDiv.innerHTML;
+
+    // HTMLを整形して視認性を向上（エクスポートファイルのデバッグ用）
+    renderedContent = formatHTML(renderedContent);
+    tocContent = formatHTML(tocContent);
 
     // ファイル名を取得（拡張子なし）
     const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '');
@@ -1139,8 +1166,9 @@
 
       // セキュリティ: 既にレンダリング済みのHTMLコンテンツを使用
       // Markdownを再パースせずに、安全に処理されたコンテンツを使用
-      const renderedContent = ${JSON.stringify(renderedContent)};
-      const tocHtml = ${JSON.stringify(tocContent)};
+      // テンプレートリテラルで埋め込むため、特殊文字をエスケープ
+      const renderedContent = \`${renderedContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;
+      const tocHtml = \`${tocContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;
 
       // DOMに既にレンダリング済みのコンテンツを挿入
       document.getElementById('content-placeholder').innerHTML = renderedContent;

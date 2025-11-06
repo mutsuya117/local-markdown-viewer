@@ -31,6 +31,7 @@
 - **DOMPurify** v3.0.8 - HTMLサニタイゼーション（XSS対策）
 - **Mermaid** v11.12.1 - ダイアグラム描画ライブラリ
 - **KaTeX** v0.16.10 - 数式レンダリングライブラリ
+- **js-beautify** v1.15.1 - HTMLコード整形ライブラリ（エクスポート用）
 
 ### ビルドツール
 - **ビルドプロセス**: なし
@@ -61,6 +62,7 @@ C:\work\chrome_extention\local-markdown-viewer\
 │   ├── katex.min.js
 │   ├── katex.min.css
 │   ├── auto-render.min.js
+│   ├── beautify-html.min.js
 │   └── highlight-github.min.css
 ├── styles/               # カスタムCSSスタイル
 │   └── github.css        # GitHubスタイルのCSS
@@ -174,6 +176,7 @@ C:\work\chrome_extention\local-markdown-viewer\
    - スタンドアロンHTMLファイルとしてダウンロード
    - **セキュリティ重視**: 既にレンダリング済みのコンテンツを使用（Markdownを再パースしない）
    - **軽量**: 必要最小限のCDN（KaTeX CSSのみ）
+   - **視認性向上**: js-beautifyでHTMLを整形（インデント・改行を適切に配置）
    - ローカル画像（file://、相対パス）を自動的にBase64として埋め込み
      - 最大ファイルサイズ: 30MB/ファイル
      - サポート形式: PNG, JPEG, GIF, WebP, SVG, BMP

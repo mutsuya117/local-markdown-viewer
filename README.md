@@ -253,6 +253,7 @@ $$
 - [DOMPurify](https://github.com/cure53/DOMPurify) v3.0.8 - Apache License 2.0 / MPL 2.0
 - [Mermaid](https://mermaid.js.org/) v11.12.1 - MIT License
 - [KaTeX](https://katex.org/) v0.16.10 - MIT License
+- [js-beautify](https://beautifier.io/) v1.15.1 - MIT License
 
 詳細なライセンス情報は [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) をご覧ください。
 
