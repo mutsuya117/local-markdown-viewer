@@ -1,0 +1,113 @@
+【Overview】
+
+Local Markdown Viewer is a Chrome extension that beautifully displays local Markdown (.md / .markdown) files in GitHub style.
+It automatically generates a table of contents from headings (h1-h6) and allows quick navigation through in-page links.
+Fully supports GitHub Flavored Markdown (GFM), including tables, task lists, syntax highlighting, Mermaid diagrams, and mathematical equations. It also features dark mode toggle, print functionality, and HTML export, making it ideal for sharing and distributing documents.
+No configuration screen - simple design that works right after installation.
+
+
+【Key Features】
+
+■ Markdown Display
+・Display in GitHub style with full GitHub Flavored Markdown (GFM) support
+・Syntax highlighting for 140+ programming languages
+・Auto-generated table of contents (h1-h6), resizable TOC width, responsive design
+
+■ Mermaid Diagrams
+・Support for flowcharts, sequence diagrams, Gantt charts, and many more diagram types
+・Automatic rendering in code blocks
+
+■ Mathematical Equations (KaTeX)
+・Support for LaTeX-formatted equations (inline and display equations)
+・One-click ON/OFF toggle
+
+■ Dark Mode
+・One-click toggle between light and dark modes
+・Settings automatically saved
+
+■ Print Function
+・One-click printing with TOC and buttons automatically hidden
+・Maintains current mode (light/dark)
+
+■ HTML Export Function
+・One-click download as standalone HTML file
+・Automatically embeds local images as Base64 (supports PNG, JPEG, GIF, WebP, SVG, BMP)
+・Viewable in any browser without the extension, ideal for document sharing
+
+■ Multilingual Support
+・Supports English, Japanese, and Simplified Chinese
+
+■ Security
+・Privacy protection - file contents are never sent externally
+
+
+【Scope and Limitations】
+
+■ Target
+・Markdown (.md / .markdown) files opened with file:// protocol
+・Locally saved Markdown files
+
+■ Not Applicable
+・Markdown pages on the web (GitHub, GitLab, Bitbucket, etc.)
+・Preview pages of remote Git repositories
+・Other file formats (.txt, .html, etc.)
+
+■ How It Works
+・The extension processes only within the displayed page
+・Reads Markdown text and converts it to HTML for display
+・Never sends file contents to external servers
+・Displays images if image links are specified in the Markdown file
+ (Does not access files that are not referenced)
+
+
+【About Permissions】
+
+■ Required Setting
+"Allow access to file URLs"
+Enabling this setting allows the extension to read local files (file://).
+
+■ Purpose of Permission Use
+・Used only to read local Markdown files and convert them to HTML for display
+・Used in HTML export function to read image files referenced in Markdown and embed them as Base64
+・Never modifies, deletes, or overwrites file contents
+・Read-only, display purposes only
+
+■ About Privacy
+・No data collection - does not collect user data or browsing history
+・No external transmission - does not send file contents to external servers
+・No tracking - no advertisements or access analytics
+・Complete local processing - all processing is done within the browser
+
+
+【Who This Extension Is For】
+
+・People who write README and technical specifications in Markdown and want to view them easily in a browser
+・People who want to safely view documents locally that are not published internally or externally
+・People who want to distribute and share Markdown documents as beautiful HTML files
+・People who want simplicity and don't want to add settings
+
+
+【Frequently Asked Questions】
+
+Q. Does it work on GitHub Markdown pages?
+A. No. This extension only formats "locally opened .md/.markdown files."
+   It does not interfere with remote pages on the web.
+
+Q. Is data sent anywhere?
+A. No. It is self-contained on the page and does not send data externally.
+   All processing is done within the browser.
+
+Q. Can I edit files?
+A. No. This extension is read-only.
+   It never modifies, deletes, or overwrites file contents.
+
+Q. I don't know how to set it up.
+A. A setup guide page will automatically open upon installation,
+   providing step-by-step instructions. Just follow the guide and
+   enable "Allow access to file URLs" to start using it.
+
+Q. What languages are supported?
+A. English, Japanese, and Simplified Chinese are supported.
+   The display language is automatically selected based on your Chrome browser language settings.
+
+
