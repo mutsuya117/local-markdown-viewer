@@ -389,68 +389,79 @@
     };
   }
 
-  // 画像をBase64に変換する関数（Background Scriptを使用）
+  // 画像をBase64に変換する関数（Background Scriptを使用・並列処理）
   async function convertImagesToBase64() {
-    const imageMap = new Map();
     const images = document.querySelectorAll('.markdown-body img');
+    const uniqueSources = new Set();
+    const imageArray = [];
 
-    for (const img of images) {
+    // 重複を除外してユニークなsrcのみ処理
+    images.forEach(img => {
       const src = img.getAttribute('src');
-      if (!src) continue;
+      if (src && !uniqueSources.has(src)) {
+        uniqueSources.add(src);
+        imageArray.push({ src, absoluteUrl: img.src });
+      }
+    });
 
-      // 既に処理済みの場合はスキップ
-      if (imageMap.has(src)) continue;
-
+    // 各画像の変換処理を並列実行
+    const promises = imageArray.map(async ({ src, absoluteUrl }) => {
       try {
         // data:スキームの場合はそのまま使用
         if (src.startsWith('data:')) {
-          imageMap.set(src, src);
-          continue;
+          return { src, base64: src };
         }
 
-        // http/httpsの外部URLはそのまま使用（CORSの問題があるため）
-        if (src.startsWith('http://') || src.startsWith('https://')) {
-          imageMap.set(src, src);
-          continue;
-        }
-
-        // ローカル画像（file://または相対パス）をBase64に変換
-        // img.srcで絶対URLを取得（ブラウザが自動的にfile://に解決）
-        const absoluteUrl = img.src;
-
-        // Background Scriptに画像変換を依頼
-        try {
-          const response = await new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage(
-              {
-                type: 'CONVERT_IMAGE_TO_BASE64',
-                imageUrl: absoluteUrl
-              },
-              (response) => {
-                if (chrome.runtime.lastError) {
-                  reject(new Error(chrome.runtime.lastError.message));
-                } else {
-                  resolve(response);
-                }
+        // http/httpsまたはfile://画像をBackground Service Workerで取得（CORS回避）
+        // リモート画像のサイズ制限: 20MB
+        const response = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage(
+            {
+              type: 'CONVERT_IMAGE_TO_BASE64',
+              imageUrl: src.startsWith('http://') || src.startsWith('https://') ? src : absoluteUrl
+            },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+              } else {
+                resolve(response);
               }
-            );
-          });
+            }
+          );
+        });
 
-          if (response.success) {
-            imageMap.set(src, response.base64);
-          } else {
-            console.warn(`画像のBase64変換に失敗しました: ${src}`, response.error);
-            imageMap.set(src, src);
+        if (response.success) {
+          // リモート画像の場合はサイズチェック（20MB制限）
+          if (src.startsWith('http://') || src.startsWith('https://')) {
+            const base64Size = response.base64.length * 0.75; // デコード後のサイズ推定
+            const MAX_REMOTE_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB
+
+            if (base64Size > MAX_REMOTE_IMAGE_SIZE) {
+              console.warn(`リモート画像が大きすぎます（推定${(base64Size / 1024 / 1024).toFixed(2)}MB > 20MB）: ${src} - URLのまま保持します`);
+              return { src, base64: src };
+            }
           }
-        } catch (e) {
-          console.warn(`Background Scriptとの通信に失敗しました: ${src}`, e);
-          imageMap.set(src, src);
+          return { src, base64: response.base64 };
+        } else {
+          console.warn(`画像の変換に失敗しました: ${src}`, response.error);
+          return { src, base64: src };
         }
       } catch (error) {
         console.warn(`画像処理中にエラーが発生しました: ${src}`, error);
-        imageMap.set(src, src);
+        return { src, base64: src };
       }
-    }
+    });
+
+    // すべての画像を並列処理（Promise.allSettledで一部失敗しても継続）
+    const results = await Promise.allSettled(promises);
+
+    // 結果をMapに格納
+    const imageMap = new Map();
+    results.forEach(result => {
+      if (result.status === 'fulfilled' && result.value) {
+        imageMap.set(result.value.src, result.value.base64);
+      }
+    });
 
     return imageMap;
   }
@@ -479,7 +490,24 @@
   }
 
   // スタンドアロンHTMLを生成する関数（エクスポート用）
-  function generateExportHTML(currentKatexEnabled, imageMap) {
+  async function generateExportHTML(currentKatexEnabled, imageMap) {
+    // KaTeX CSSを読み込んでフォントパスをCDN URLに修正（オフライン対応・フォントはCDN）
+    let katexCSS = '';
+    if (currentKatexEnabled) {
+      try {
+        const katexCssUrl = chrome.runtime.getURL('libs/katex.min.css');
+        const response = await fetch(katexCssUrl);
+        let css = await response.text();
+
+        // CSS内のフォントパスを絶対URL（CDN）に置換
+        // 例: url(fonts/KaTeX_Main-Regular.woff2) → url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/KaTeX_Main-Regular.woff2)
+        css = css.replace(/url\(fonts\//g, 'url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/');
+
+        katexCSS = css;
+      } catch (error) {
+        console.warn('KaTeX CSSの読み込みに失敗しました:', error);
+      }
+    }
     // セキュリティ: 既にレンダリング済みのHTMLコンテンツを使用
     // Markdownを再パースすると、数式内のXSS攻撃を防ぐのが困難になるため
     let renderedContent = document.querySelector('.markdown-body').innerHTML;
@@ -489,6 +517,14 @@
     // DOMPurifyで危険なdata:スキームなどを再度チェック
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = renderedContent;
+
+    // 実際にKaTeX要素が存在するかチェック
+    const katexElements = tempDiv.querySelectorAll('.katex');
+    const hasKatexElements = katexElements.length > 0 && katexCSS !== '';
+
+    // 実際にMermaid要素が存在するかチェック
+    const mermaidElements = tempDiv.querySelectorAll('.mermaid');
+    const hasMermaidElements = mermaidElements.length > 0;
 
     // 危険なdata:スキームを持つ画像を削除
     tempDiv.querySelectorAll('img[src^="data:"]').forEach(img => {
@@ -506,8 +542,8 @@
       }
     });
 
-    // MermaidのSVGを元のコードブロックに戻す（エクスポートHTML内でMermaidが再描画するため）
-    // インデックスベースで復元（属性はMermaidライブラリによって削除される可能性があるため）
+    // MermaidのSVGをそのまま保存し、元のコードもdata-mermaid-code属性に保存
+    // CDN読み込み成功時: 再描画、失敗時: 保存済みSVGを使用（オフライン対応）
     const mermaidDivs = tempDiv.querySelectorAll('.mermaid');
     const mermaidCodes = Array.from(mermaidCodeMap.values());
 
@@ -515,15 +551,14 @@
       if (index < mermaidCodes.length) {
         const code = mermaidCodes[index];
 
-        // 中身を完全にクリアして、元のテキストコードのみにする
-        // textContentを使うことで、Mermaidライブラリが生のテキストとして認識できる
-        mermaidDiv.innerHTML = ''; // 既存のSVGを削除
-        mermaidDiv.textContent = code; // 生のテキストコードを設定
+        // 元のMermaidコードをdata-mermaid-code属性に保存（オンライン時の再描画用）
+        mermaidDiv.setAttribute('data-mermaid-code', code);
 
-        // 不要な属性を削除
+        // SVGはそのまま残す（オフライン時のフォールバック用）
+        // innerHTML = '' や textContent = code は実行しない
+
+        // 不要な属性は削除
         mermaidDiv.removeAttribute('data-mermaid-id');
-        mermaidDiv.removeAttribute('data-processed');
-        mermaidDiv.removeAttribute('id');
       }
     });
 
@@ -544,14 +579,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; img-src data: https: http:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src data: https://cdn.jsdelivr.net; script-src 'unsafe-inline' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; form-action 'none';">
+        content="default-src 'self'; img-src data: https: http:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; script-src 'unsafe-inline' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'none'; form-action 'none';">
   <title>${escapeHtml(fileName)} - Markdown Preview</title>
 
-  <!-- KaTeX CSS -->
-  ${currentKatexEnabled ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">' : ''}
+  <!-- KaTeX CSS (埋め込み・フォントはCDNから読み込み) - 数式が存在する場合のみ -->
+  ${hasKatexElements ? '<style>' + katexCSS + '</style>' : ''}
 
-  <!-- Mermaid JS -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js"></script>
+  <!-- Mermaid JS - ダイアグラムが存在する場合のみ読み込み -->
+  ${hasMermaidElements ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js"></script>' : ''}
 
   <style>
     /* GitHub Markdown Style */
@@ -1275,7 +1310,9 @@
         });
       }
 
-      // Mermaidダイアグラムの初期化と描画
+      ${hasMermaidElements ? `// Mermaidダイアグラムの初期化と描画
+      // オンライン時: CDNから読み込んで再描画
+      // オフライン時: 保存済みSVGを使用
       if (typeof mermaid !== 'undefined') {
         // Mermaidの設定（デフォルトテーマを使用）
         mermaid.initialize({
@@ -1285,11 +1322,14 @@
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif'
         });
 
-        // 元のMermaidコードを保存
+        // 元のMermaidコードを保存（data-mermaid-code属性から取得）
         const mermaidOriginalCodes = [];
         const mermaidElements = document.querySelectorAll('.mermaid');
         mermaidElements.forEach(function(element) {
-          mermaidOriginalCodes.push(element.textContent);
+          const code = element.getAttribute('data-mermaid-code');
+          if (code) {
+            mermaidOriginalCodes.push(code);
+          }
         });
 
         // Mermaidダイアグラムを描画する関数
@@ -1330,7 +1370,11 @@
             renderMermaid();
           }, 300); // 300ms後に再描画
         });
-      }
+      } else {
+        // Mermaid.jsが読み込めない場合（オフライン時）
+        // 保存済みのSVGをそのまま使用（何もしない）
+        console.info('Mermaid.js not available. Using pre-rendered SVG diagrams.');
+      }` : ''}
     })();
   </script>
 </body>
@@ -1715,6 +1759,38 @@
     .export-button:hover {
       transform: scale(1.1);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .export-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .export-button:disabled:hover {
+      transform: none;
+    }
+    /* スピナーアニメーション（処理中） */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .export-button.loading {
+      animation: spin 1s linear infinite;
+    }
+    /* 完了時のカラーアニメーション */
+    @keyframes successPulse {
+      0%, 100% { background-color: #f6f8fa; }
+      50% { background-color: #28a745; }
+    }
+    @keyframes successPulseDark {
+      0%, 100% { background-color: #21262d; }
+      50% { background-color: #238636; }
+    }
+    .export-button.success {
+      animation: successPulse 0.6s ease-in-out;
+      color: #28a745;
+    }
+    body[data-theme="dark"] .export-button.success {
+      animation: successPulseDark 0.6s ease-in-out;
+      color: #3fb950;
     }
     /* 印刷ボタン */
     .print-button {
@@ -2179,12 +2255,18 @@
   const exportButton = document.querySelector('.export-button');
   if (exportButton) {
     exportButton.addEventListener('click', async function() {
+      // ローディング状態を開始
+      const originalText = exportButton.textContent;
+      exportButton.textContent = '⏳';
+      exportButton.classList.add('loading');
+      exportButton.disabled = true;
+
       try {
         // ローカル画像をBase64に変換
         const imageMap = await convertImagesToBase64();
 
         // エクスポート用HTMLを生成
-        const exportHTML = generateExportHTML(isKatexEnabled, imageMap);
+        const exportHTML = await generateExportHTML(isKatexEnabled, imageMap);
 
         // ファイル名を生成
         const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '') + '.html';
@@ -2208,8 +2290,23 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
         }, 100);
+
+        // 完了を示すアニメーション
+        exportButton.textContent = '✓';
+        exportButton.classList.remove('loading'); // 回転を止める
+        exportButton.classList.add('success'); // カラーアニメーション開始
+        setTimeout(() => {
+          exportButton.textContent = originalText;
+          exportButton.classList.remove('success');
+          exportButton.disabled = false;
+        }, 1000);
       } catch (error) {
         alert(chrome.i18n.getMessage('exportFailed') + error.message);
+
+        // エラー時も元に戻す
+        exportButton.textContent = originalText;
+        exportButton.classList.remove('loading');
+        exportButton.disabled = false;
       }
     });
   }

@@ -8,10 +8,8 @@ chrome.runtime.onInstalled.addListener((details) => {
     chrome.tabs.create({
       url: chrome.runtime.getURL('setup.html')
     });
-  } else if (details.reason === 'update') {
-    // アップデート時は何もしない（必要に応じて変更通知ページを開くことも可能）
-    console.log('Local Markdown Viewer がアップデートされました');
   }
+  // アップデート時は何もしない（必要に応じて変更通知ページを開くことも可能）
 });
 
 // Content Scriptからのメッセージを受信（画像Base64変換用）

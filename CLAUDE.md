@@ -151,6 +151,7 @@ C:\work\chrome_extention\local-markdown-viewer\
    - ライト/ダークモード対応
    - ON/OFF切り替えボタン（右上に配置）
    - デフォルトON、localStorageに設定を保存
+   - エクスポート時: CSSを埋め込み、フォントはCDNから読み込み（基本レイアウトはオフライン表示可）
 
 5. **自動目次（TOC）生成**
    - h1-h6の見出しから自動生成
@@ -175,17 +176,23 @@ C:\work\chrome_extention\local-markdown-viewer\
    - 右上にエクスポートボタン（⬇️）を配置
    - スタンドアロンHTMLファイルとしてダウンロード
    - **セキュリティ重視**: 既にレンダリング済みのコンテンツを使用（Markdownを再パースしない）
-   - **軽量**: 必要最小限のCDN（Mermaid JS、KaTeX CSS）
-   - **視認性向上**: js-beautifyでHTMLを整形（インデント・改行を適切に配置）
-   - ローカル画像（file://、相対パス）を自動的にBase64として埋め込み
-     - 最大ファイルサイズ: 30MB/ファイル
-     - サポート形式: PNG, JPEG, GIF, WebP, SVG, BMP
-   - Background Service Workerを使用してfile://画像を読み取り
-   - 外部画像（http(s)://）はURLのまま保持
+   - **オフライン対応（ハイブリッド方式）**:
+     - 画像: ローカル・リモート共にBase64埋め込み（完全オフライン）
+     - Mermaid SVG: エクスポート時のSVGを保存（完全オフライン、オンライン時は再描画）
+     - KaTeX CSS: CSSを埋め込み、フォントのみCDN参照（ほぼオフライン）
+       - libs/katex.min.cssを読み込み、フォントパスをCDN URLに置換
+       - `url(fonts/` → `url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/`
+   - **並列処理による高速化**:
+     - すべての画像を並列ダウンロード・変換（Promise.allSettled使用）
+     - 重複画像の除外（Set使用）
+     - 一部失敗しても全体は継続
+     - ローカル画像: 最大30MB/ファイル、リモート画像: 最大20MB/ファイル
+     - Background Service Workerで取得（CORS回避）
+   - **視認性向上**: js-beautifyでHTMLを整形（インデント2スペース）
+   - サポート形式: PNG, JPEG, GIF, WebP, SVG, BMP
    - エクスポートされたHTMLは目次、ダークモード切り替え、印刷機能を含む
-   - KaTeX設定はエクスポート時点の状態で固定
    - Content Security Policy (CSP)による保護
-   - **注意**: 閲覧にはインターネット接続が必要（CDNからライブラリを読み込むため）
+   - **推奨環境**: インターネット接続（KaTeXフォント、Mermaid再描画で最高品質）
 
 9. **UIボタン**
    - すべてのボタンを40px × 40pxの円形に統一

@@ -31,9 +31,12 @@ No configuration screen - simple design that works right after installation.
 
 ■ HTML Export Function
 ・One-click download as standalone HTML file
-・Automatically embeds local images as Base64 (supports PNG, JPEG, GIF, WebP, SVG, BMP)
+・Automatically embeds images as Base64 (supports PNG, JPEG, GIF, WebP, SVG, BMP)
+  - Local images: Up to 30MB/file
+  - Remote images: Up to 20MB/file (larger ones kept as URLs)
+  - Parallel processing for fast downloads (processes multiple images simultaneously)
 ・Viewable in any browser without the extension, ideal for document sharing
-・Note: Internet connection required for viewing (loads Mermaid library and KaTeX CSS from CDN)
+・Near-full offline support: Images and Mermaid diagrams work fully offline, KaTeX equations display basic layout offline
 
 ■ Multilingual Support
 ・Supports English, Japanese, and Simplified Chinese
