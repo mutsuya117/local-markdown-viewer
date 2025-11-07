@@ -2,14 +2,14 @@
 
 Local Markdown Viewer is a Chrome extension that beautifully displays local Markdown (.md / .markdown) files in GitHub style.
 It automatically generates a table of contents from headings (h1-h6) and allows quick navigation through in-page links.
-Fully supports GitHub Flavored Markdown (GFM), including tables, task lists, syntax highlighting, Mermaid diagrams, and mathematical equations. It also features dark mode toggle, print functionality, and HTML export, making it ideal for sharing and distributing documents.
+Supports GitHub Flavored Markdown (GFM), including tables, task lists, syntax highlighting, Mermaid diagrams, and mathematical equations. It also features dark mode toggle, print functionality, and HTML export, making it ideal for sharing and distributing documents.
 No configuration screen - simple design that works right after installation.
 
 
 【Key Features】
 
 ■ Markdown Display
-・Display in GitHub style with full GitHub Flavored Markdown (GFM) support
+・Display in GitHub style with GitHub Flavored Markdown (GFM) support
 ・Syntax highlighting for 140+ programming languages
 ・Auto-generated table of contents (h1-h6), resizable TOC width, responsive design
 

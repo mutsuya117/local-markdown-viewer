@@ -20,7 +20,7 @@ UIの言語は、Chromeブラウザの言語設定に基づいて自動的に選
 
 ## 機能
 
-- ✅ **GitHub Flavored Markdown (GFM)** 完全対応
+- ✅ **GitHub Flavored Markdown (GFM)** 対応
   - テーブル
   - タスクリスト
   - 打ち消し線

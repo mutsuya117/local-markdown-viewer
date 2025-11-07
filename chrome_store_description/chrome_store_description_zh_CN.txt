@@ -2,14 +2,14 @@
 
 Local Markdown Viewer 是一个Chrome扩展程序，可以以GitHub样式精美地显示本地Markdown（.md / .markdown）文件。
 它会自动从标题（h1～h6）生成目录，并允许通过页内链接快速导航。
-完全支持GitHub Flavored Markdown（GFM），包括表格、任务列表、语法高亮、Mermaid图表和数学公式显示等丰富功能。还配备了深色模式切换、打印功能和HTML导出功能，非常适合文档共享和分发。
+支持GitHub Flavored Markdown（GFM），包括表格、任务列表、语法高亮、Mermaid图表和数学公式显示等丰富功能。还配备了深色模式切换、打印功能和HTML导出功能，非常适合文档共享和分发。
 无配置界面 - 安装即可使用的简洁设计。
 
 
 【主要功能】
 
 ■ Markdown显示功能
-・以GitHub样式显示，完全支持GitHub Flavored Markdown（GFM）
+・以GitHub样式显示，支持GitHub Flavored Markdown（GFM）
 ・支持140多种编程语言的语法高亮
 ・自动生成目录（h1～h6）、目录宽度可调整、响应式设计
 

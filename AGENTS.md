@@ -126,7 +126,7 @@ C:\work\chrome_extention\local-markdown-viewer\
 ### 主要機能
 
 1. **Markdown レンダリング**
-   - GitHub Flavored Markdown (GFM) 完全対応
+   - GitHub Flavored Markdown (GFM) 対応
    - テーブル、タスクリスト、打ち消し線、自動リンク
 
 2. **シンタックスハイライト**
