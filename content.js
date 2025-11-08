@@ -19,26 +19,82 @@
   const rawKatexEnabled = localStorage.getItem('markdown-katex-enabled');
   const isKatexEnabled = rawKatexEnabled !== 'false'; // デフォルトON（明示的にfalseの場合のみOFF）
 
+  // コードブロック、インラインコード、見出し行を一時的に保護
+  // （数式ブロック保護処理でこれらの中の$$が誤って処理されないように）
+  // 見出し行保護により、見出し内の$$...$$や\[...\]が数式として認識されない（GitHub互換）
+  const protectedCodeBlocks = [];
+  const disabledMathBlocks = []; // 英数字を含まない数式記法を保存
+  markdownText = markdownText.replace(/```[\s\S]*?```|`[^`\n]+`|^#{1,6}\s+.+$/gm, function(match) {
+    const placeholder = `PROTECTED_CODE_${protectedCodeBlocks.length}_PLACEHOLDER`;
+    protectedCodeBlocks.push(match);
+    return placeholder;
+  });
+
   // 数式ブロックを一時的に保護（Marked.jsが誤って処理しないように）
   // KaTeXが有効な場合のみ実行
-  // 注意: インライン数式（$...$と\(...\)）は保護しない
-  // KaTeXの auto-render.js がHTMLをパース後に直接処理する
+  // 注意: インライン数式$...$は保護しない（HTMLレンダリング後に処理）
+  // すべての数式記法に英数字チェックを適用（統一性）
   const mathBlocks = [];
   if (isKatexEnabled) {
-    // ディスプレイ数式 $$...$$ のみ保護（$...$との混同を防ぐため先に処理）
+    // ディスプレイ数式 $$...$$ を保護（$...$との混同を防ぐため先に処理）
+    // 内容に英数字が含まれている場合のみ保護
     markdownText = markdownText.replace(/\$\$[\s\S]*?\$\$/g, function(match) {
+      // 内容を抽出（$$ を除く）
+      const content = match.substring(2, match.length - 2);
+      // 英数字が含まれているかチェック
+      const hasAlphanumeric = /[a-zA-Z0-9]/.test(content);
+      if (!hasAlphanumeric) {
+        // 英数字なし → プレースホルダーに置換（後で元に戻す）
+        const placeholder = `DISABLED_MATH_${disabledMathBlocks.length}_PLACEHOLDER`;
+        disabledMathBlocks.push(match);
+        return placeholder;
+      }
       const placeholder = `MATH_BLOCK_${mathBlocks.length}_PLACEHOLDER`;
       mathBlocks.push(match);
       return placeholder;
     });
 
     // ディスプレイ数式 \[...\] を保護
+    // 内容に英数字が含まれている場合のみ保護
     markdownText = markdownText.replace(/\\\[[\s\S]*?\\\]/g, function(match) {
+      // 内容を抽出（\[ と \] を除く）
+      const content = match.substring(2, match.length - 2);
+      // 英数字が含まれているかチェック
+      const hasAlphanumeric = /[a-zA-Z0-9]/.test(content);
+      if (!hasAlphanumeric) {
+        // 英数字なし → プレースホルダーに置換（後で元に戻す）
+        const placeholder = `DISABLED_MATH_${disabledMathBlocks.length}_PLACEHOLDER`;
+        disabledMathBlocks.push(match);
+        return placeholder;
+      }
+      const placeholder = `MATH_BLOCK_${mathBlocks.length}_PLACEHOLDER`;
+      mathBlocks.push(match);
+      return placeholder;
+    });
+
+    // インライン数式 \(...\) を保護
+    // 内容に英数字が含まれている場合のみ保護
+    markdownText = markdownText.replace(/\\\([\s\S]*?\\\)/g, function(match) {
+      // 内容を抽出（\( と \) を除く）
+      const content = match.substring(2, match.length - 2);
+      // 英数字が含まれているかチェック
+      const hasAlphanumeric = /[a-zA-Z0-9]/.test(content);
+      if (!hasAlphanumeric) {
+        // 英数字なし → プレースホルダーに置換（後で元に戻す）
+        const placeholder = `DISABLED_MATH_${disabledMathBlocks.length}_PLACEHOLDER`;
+        disabledMathBlocks.push(match);
+        return placeholder;
+      }
       const placeholder = `MATH_BLOCK_${mathBlocks.length}_PLACEHOLDER`;
       mathBlocks.push(match);
       return placeholder;
     });
   }
+
+  // コードブロックとインラインコードを復元（Marked.jsに処理させる）
+  markdownText = markdownText.replace(/PROTECTED_CODE_(\d+)_PLACEHOLDER/g, function(match, index) {
+    return protectedCodeBlocks[parseInt(index, 10)];
+  });
 
   // HTMLエスケープ関数（XSS対策）
   function escapeHtml(unsafe) {
@@ -307,7 +363,7 @@
 
   // 保護した数式ブロックを元に戻す（KaTeX有効時のみ）
   // セキュリティ: テキストノードとして復元することでXSSを防ぐ
-  if (isKatexEnabled && mathBlocks.length > 0) {
+  if (isKatexEnabled && (mathBlocks.length > 0 || disabledMathBlocks.length > 0)) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
 
@@ -318,7 +374,7 @@
       {
         acceptNode: function(node) {
           // プレースホルダーを含むノードのみ処理（高速化）
-          return node.nodeValue && node.nodeValue.includes('MATH_BLOCK_')
+          return node.nodeValue && (node.nodeValue.includes('MATH_BLOCK_') || node.nodeValue.includes('DISABLED_MATH_'))
             ? NodeFilter.FILTER_ACCEPT
             : NodeFilter.FILTER_SKIP;
         }
@@ -333,12 +389,33 @@
 
     // プレースホルダーを数式に置き換え（テキストノードとして安全に設定）
     nodesToReplace.forEach(textNode => {
-      const text = textNode.nodeValue;
-      const replaced = text.replace(/MATH_BLOCK_(\d+)_PLACEHOLDER/g, function(match, index) {
+      let text = textNode.nodeValue;
+      // 有効な数式ブロックを復元
+      text = text.replace(/MATH_BLOCK_(\d+)_PLACEHOLDER/g, function(match, index) {
         // テキストノードのnodeValueとして設定することで、HTMLとして解釈されない
         return mathBlocks[parseInt(index, 10)];
       });
-      textNode.nodeValue = replaced;
+      // 無効な数式ブロック（英数字なし）を復元
+      text = text.replace(/DISABLED_MATH_(\d+)_PLACEHOLDER/g, function(match, index) {
+        // 元の形式に戻すが、KaTeXが認識しないようにゼロ幅スペース（U+200B）を挿入
+        const original = disabledMathBlocks[parseInt(index, 10)];
+        // \[...\] → \​[...\​] (バックスラッシュと括弧の間にゼロ幅スペース)
+        // \(...\) → \​(...\​)
+        // $$...$$ → $​$...$​$
+        // 各数式記法に応じてゼロ幅スペースを挿入
+        if (original.startsWith('\\[')) {
+          // \[...\] → \​[...\​]
+          return original.replace(/^\\\[/, '\\\u200B[').replace(/\\\]$/, '\\\u200B]');
+        } else if (original.startsWith('\\(')) {
+          // \(...\) → \​(...\​)
+          return original.replace(/^\\\(/, '\\\u200B(').replace(/\\\)$/, '\\\u200B)');
+        } else if (original.startsWith('$$')) {
+          // $$...$$ → $​$...$​$
+          return original.replace(/^\$\$/, '$\u200B$').replace(/\$\$$/, '$\u200B$');
+        }
+        return original;
+      });
+      textNode.nodeValue = text;
     });
 
     htmlContent = tempDiv.innerHTML;
@@ -2362,10 +2439,118 @@
       const mathElements = document.querySelector('.markdown-body');
       if (mathElements) {
         try {
+          // GitHub互換のヒューリスティックを適用：
+          // 有効な$...$のみを\(...\)に変換してから、KaTeX auto-renderを実行
+          // ルール（GitHubの実際の動作に基づく）:
+          // 開始$: 直後が空白/タブでない
+          // 終了$: 直前が空白/タブでない、直後が英数字でない
+          // 内容: 英数字が含まれている
+          const applyGitHubHeuristics = (element) => {
+            const walker = document.createTreeWalker(
+              element,
+              NodeFilter.SHOW_TEXT,
+              {
+                acceptNode: (node) => {
+                  // $を含まないテキストノードはスキップ
+                  if (!node.nodeValue || !node.nodeValue.includes('$')) {
+                    return NodeFilter.FILTER_SKIP;
+                  }
+
+                  // 親要素が見出しタグ（h1-h6）の場合はスキップ
+                  let parent = node.parentElement;
+                  while (parent) {
+                    if (/^H[1-6]$/.test(parent.tagName)) {
+                      return NodeFilter.FILTER_SKIP;
+                    }
+                    parent = parent.parentElement;
+                  }
+
+                  return NodeFilter.FILTER_ACCEPT;
+                }
+              }
+            );
+
+            const nodesToProcess = [];
+            let node;
+            while (node = walker.nextNode()) {
+              nodesToProcess.push(node);
+            }
+
+            nodesToProcess.forEach(textNode => {
+              let text = textNode.nodeValue;
+
+              // markdown-it-katex の公式ヒューリスティックを実装:
+              // - 開始$: 直前が空白/タブでない、直後が空白/タブでない
+              // - 終了$: 直前が空白/タブでない、直後が数字でない
+
+              // $...$を検出して、有効なペアのみを\(...\)に変換
+              const dollarPositions = [];
+              for (let i = 0; i < text.length; i++) {
+                if (text[i] === '$') {
+                  const prevChar = i > 0 ? text.charCodeAt(i - 1) : null;
+                  const nextChar = i < text.length - 1 ? text.charCodeAt(i + 1) : null;
+
+                  // can_open: 直後が空白/タブでない（GitHub互換: 直前チェックなし）
+                  const canOpen = (nextChar !== null && nextChar !== 0x20 && nextChar !== 0x09);
+
+                  // can_close: 直前が空白/タブでなく、直後が英数字でない（GitHub拡張）
+                  const isAlphanumeric = (charCode) => {
+                    return (charCode >= 0x30 && charCode <= 0x39) || // 0-9
+                           (charCode >= 0x41 && charCode <= 0x5A) || // A-Z
+                           (charCode >= 0x61 && charCode <= 0x7A);   // a-z
+                  };
+                  const canClose = (prevChar !== null && prevChar !== 0x20 && prevChar !== 0x09) &&
+                                   (nextChar === null || !isAlphanumeric(nextChar));
+
+                  dollarPositions.push({ index: i, canOpen, canClose });
+                }
+              }
+
+              // 有効なペアを見つけて変換（markdown-it-katexと同じロジック）
+              // 隣接する$同士のみをペアにする（間に別の$がある場合はペア不成立）
+              const pairs = [];
+              let i = 0;
+              while (i < dollarPositions.length - 1) {
+                const openPos = dollarPositions[i];
+                const nextPos = dollarPositions[i + 1];
+
+                // 開始$がcan_openで、次の$がcan_closeの場合のみペア成立
+                if (openPos.canOpen && nextPos.canClose) {
+                  pairs.push({ start: openPos.index, end: nextPos.index });
+                  i += 2; // ペアをスキップして次へ
+                } else {
+                  i++; // この$はペアにならないので次へ
+                }
+              }
+
+              // 後ろから置換（インデックスがずれないように）
+              for (let i = pairs.length - 1; i >= 0; i--) {
+                const { start, end } = pairs[i];
+                const content = text.substring(start + 1, end);
+
+                // 内容に英数字が含まれているかチェック（GitHub互換）
+                // 英数字が含まれていない場合は数式として認識しない
+                const hasAlphanumeric = /[a-zA-Z0-9]/.test(content);
+                if (!hasAlphanumeric) {
+                  continue; // このペアはスキップ
+                }
+
+                const replacement = `\\(${content}\\)`;
+                text = text.substring(0, start) + replacement + text.substring(end + 1);
+              }
+
+              textNode.nodeValue = text;
+            });
+          };
+
+          // ヒューリスティックを適用（$...$を\(...\)に変換）
+          applyGitHubHeuristics(mathElements);
+
+          // KaTeX auto-renderを実行
           renderMathInElement(mathElements, {
             delimiters: [
               { left: '$$', right: '$$', display: true },   // ディスプレイ数式
-              { left: '$', right: '$', display: false },    // インライン数式
+              // { left: '$', right: '$', display: false }, // 無効化（ヒューリスティックで\(...\)に変換済み）
               { left: '\\[', right: '\\]', display: true }, // ディスプレイ数式（LaTeX形式）
               { left: '\\(', right: '\\)', display: false } // インライン数式（LaTeX形式）
             ],
@@ -2374,7 +2559,9 @@
             strict: 'warn', // セキュリティ: 非推奨コマンドに警告を出す
             trust: false, // セキュリティ: 信頼されていないコマンド（\url, \href等）を許可しない
             maxSize: 500, // セキュリティ: 数式の最大サイズを制限（DoS攻撃対策）
-            maxExpand: 1000 // セキュリティ: マクロ展開の最大回数を制限（DoS攻撃対策）
+            maxExpand: 1000, // セキュリティ: マクロ展開の最大回数を制限（DoS攻撃対策）
+            ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], // コードブロック、インラインコード、見出しで$記号の誤検知を防ぐ
+            ignoredClasses: ['no-math'] // 特定のクラスで数式処理を無効化可能に
           });
 
         } catch (err) {
