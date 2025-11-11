@@ -4,7 +4,25 @@
 
 ---
 
-## 📋 テストファイル一覧
+## 📊 テスト概要表
+
+| No | テスト名 | ファイル | 推奨度 | カテゴリ |
+|:--:|---------|---------|:------:|---------|
+| 1 | [基本機能テスト](#1-基本機能テストbasic-featuresmd) | [basic-features.md](basic-features.md) | ⭐⭐⭐⭐⭐ | 基本 |
+| 2 | [セキュリティテスト](#2-セキュリティテストsecurity-testsmd) | [security-tests.md](security-tests.md) | ⭐⭐⭐⭐⭐ | セキュリティ |
+| 3 | [HTMLタグテスト](#3-htmlタグテストhtml-tags-testmd) | [html-tags-test.md](html-tags-test.md) | ⭐⭐⭐⭐ | 互換性 |
+| 4 | [KaTeX数式テスト](#4-katex数式テストkatex-testsmd) | [katex-tests.md](katex-tests.md) | ⭐⭐⭐⭐ | 数式 |
+| 5 | [KaTeX $記号誤検知テスト](#5-katex-記号誤検知テストkatex-dollar-sign-testmd) | [katex-dollar-sign-test.md](katex-dollar-sign-test.md) | ⭐⭐⭐⭐ | 数式 |
+| 6 | [Mermaidダイアグラムテスト](#6-mermaidダイアグラムテストmermaid-testsmd) | [mermaid-tests.md](mermaid-tests.md) | ⭐⭐⭐⭐ | ダイアグラム |
+| 7 | [シンタックスハイライトテスト](#7-シンタックスハイライトテストsyntax-highlight-testmd) | [syntax-highlight-test.md](syntax-highlight-test.md) | ⭐⭐⭐ | コード |
+| 8 | [ローカル画像テスト](#8-ローカル画像テストlocal-images-testmd) | [local-images-test.md](local-images-test.md) | ⭐⭐ | 画像 |
+| 9 | [リモート画像テスト](#9-リモート画像テストremote-images-testmd) | [remote-images-test.md](remote-images-test.md) | ⭐⭐ | 画像 |
+| 10 | [パフォーマンステスト](#10-パフォーマンステストperformance-testmd) | [performance-test.md](performance-test.md) | ⭐⭐ | パフォーマンス |
+| 11 | [セキュリティ＆機能テスト](#11-セキュリティ機能テストsecurity_testmd) | [security_test.md](security_test.md) | ⭐ | 統合 |
+
+---
+
+## 📋 テストファイル詳細
 
 ### 1. [基本機能テスト](basic-features.md)
 **ファイル**: `basic-features.md`
@@ -94,7 +112,34 @@ KaTeX数式レンダリング機能とそのセキュリティをテストしま
 
 ---
 
-### 5. [Mermaidダイアグラムテスト](mermaid-tests.md)
+### 5. [KaTeX $記号誤検知テスト](katex-dollar-sign-test.md)
+**ファイル**: `katex-dollar-sign-test.md`
+
+KaTeX数式レンダリングにおける`$`記号の誤検知を防ぐためのテストです。
+
+**テスト内容**:
+- 価格表示の正しい認識（`$10`, `$20`, `$100`など）
+- 数式と価格の混在パターン
+- GitHub互換ヒューリスティックの検証
+  - 開始`$`: 直後が空白/タブでない
+  - 終了`$`: 直前が空白/タブでない、直後が英数字でない
+  - 内容: 英数字が含まれている
+- 見出し内の数式記法無効化
+- コードブロック・インラインコード内の保護
+- 英数字を含まない数式記法（`$...$`, `$$...$$`, `\[...\]`, `\(...\)`）の無効化
+- 約145+の詳細なテストパターン
+
+**期待される結果**:
+- ✅ 価格表示（`$10 and $20`など）はそのまま表示
+- ✅ 数式（`$x=1$`, `$E=mc^2$`など）は正しくレンダリング
+- ✅ 見出し内の数式記法はすべて無効化
+- ✅ `$...$`, `$$...$$`などの記号のみのパターンは無効化
+
+**推奨度**: ⭐⭐⭐⭐ KaTeX機能使用時は数式と価格の混在を扱う場合に重要
+
+---
+
+### 6. [Mermaidダイアグラムテスト](mermaid-tests.md)
 **ファイル**: `mermaid-tests.md`
 
 Mermaidダイアグラム描画機能をテストします。
@@ -134,7 +179,7 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 7. [ローカル画像テスト](local-images-test.md)
+### 8. [ローカル画像テスト](local-images-test.md)
 **ファイル**: `local-images-test.md`
 
 ローカル画像ファイルの表示機能をテストします。
@@ -151,7 +196,32 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 8. [パフォーマンステスト](performance-test.md)
+### 9. [リモート画像テスト](remote-images-test.md)
+**ファイル**: `remote-images-test.md`
+
+HTMLエクスポート機能のリモート画像埋め込みをテストします。
+
+**テスト内容**:
+- リモート画像のBase64変換（最大20MB/ファイル）
+- 小さい画像（150x150, 300x200, 500x300）
+- GitHub上の画像（GitHub Logo, Octocat）
+- テーブル内のリモート画像
+- インライン画像
+- Mermaidダイアグラムとの組み合わせ
+- KaTeX数式との組み合わせ
+- エクスポート時の処理フロー検証
+
+**期待される結果**:
+- ✅ 20MB以下のリモート画像がBase64化される
+- ✅ 20MB超のリモート画像はURLのまま保持
+- ✅ MIMEタイプ検証（image/*のみ許可）
+- ✅ エクスポートHTMLでオフライン表示可能
+
+**推奨度**: ⭐⭐ リモート画像を含むMarkdownをエクスポートする場合
+
+---
+
+### 10. [パフォーマンステスト](performance-test.md)
 **ファイル**: `performance-test.md`
 
 大量のコンテンツを含む重負荷テストファイルです。
@@ -174,22 +244,30 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 9. [ネットワークトラフィックテスト](network-test.md)
-**ファイル**: `network-test.md`
+### 11. [セキュリティ＆機能テスト](security_test.md)
+**ファイル**: `security_test.md`
 
-外部ライブラリがデータを外部に送信していないことを確認します。
+ライブラリアップデート後の統合テストファイルです。
 
 **テスト内容**:
-- Chrome DevToolsのNetworkタブで通信を監視
-- 拡張機能のリソース以外へのリクエストがないことを確認
-- エクスポートHTML使用時のネットワークトラフィック確認
+- KaTeX数式レンダリング（インライン、ディスプレイ、LaTeX形式）
+- 価格表示の誤認識テスト
+- XSS防御（DOMPurify）
+  - scriptタグ、イベントハンドラー、JavaScript URL
+  - HTML属性、SVG経由のXSS
+- Markdownレンダリング（コードブロック、テーブル、タスクリスト、引用、画像）
+- Mermaidダイアグラム（フローチャート、シーケンス図）
+- KaTeX DoS対策（複雑な数式、マトリックス、積分）
 
 **期待される結果**:
-- ✅ 拡張機能のローカルリソースのみを使用
-- ✅ アナリティクス・トラッキングサービスへのリクエストが0件
-- ✅ エクスポートHTML使用時もKaTeX CDNのみ（KaTeX ON時）
+- ✅ すべての数式が正しくレンダリング
+- ✅ 価格表示が誤認識されない
+- ✅ すべてのXSS攻撃がブロックされる
+- ✅ Markdown要素が正しく表示
+- ✅ Mermaidダイアグラムが正しく描画
+- ✅ 複雑な数式も正しく処理（DoS攻撃防止）
 
-**推奨度**: ⭐⭐⭐ プライバシー確認のため重要
+**推奨度**: ⭐ ライブラリアップデート後の確認用
 
 ---
 
@@ -215,19 +293,26 @@ Mermaidダイアグラム描画機能をテストします。
    - 数式が正しくレンダリングされることを確認
    - 数式内のXSS攻撃がブロックされることを確認
 
-6. **Mermaidダイアグラムテスト** (`mermaid-tests.md`)
+6. **KaTeX $記号誤検知テスト** (`katex-dollar-sign-test.md`)
+   - 価格表示と数式が正しく区別されることを確認
+   - GitHub互換ヒューリスティックの動作確認
+
+7. **Mermaidダイアグラムテスト** (`mermaid-tests.md`)
    - すべての種類のダイアグラムが正しく描画されることを確認
    - ダークモード時も白背景で表示されることを確認
 
-7. **ネットワークトラフィックテスト** (`network-test.md`)
-   - 外部へのデータ送信がないことを確認
+8. **リモート画像テスト** (`remote-images-test.md`)（オプション）
+   - リモート画像のBase64変換とエクスポートが正しく動作することを確認
 
-8. **パフォーマンステスト** (`performance-test.md`)（オプション）
+9. **パフォーマンステスト** (`performance-test.md`)（オプション）
    - 大量のコンテンツが正常に表示されることを確認
    - ページの読み込み速度とスクロール性能を確認
 
-9. **ローカル画像テスト** (`local-images-test.md`)（オプション）
-   - ローカル画像機能を使用する場合のみ
+10. **ローカル画像テスト** (`local-images-test.md`)（オプション）
+    - ローカル画像機能を使用する場合のみ
+
+11. **セキュリティ＆機能テスト** (`security_test.md`)（オプション）
+    - ライブラリアップデート後の統合確認
 
 ---
 
@@ -249,10 +334,13 @@ Mermaidダイアグラム描画機能をテストします。
 ### 機能
 - [ ] シンタックスハイライトが正しく適用される
 - [ ] KaTeX数式が正しくレンダリングされる
+- [ ] 価格表示（`$10 and $20`など）が数式として誤認識されない
 - [ ] Mermaidダイアグラムが正しく描画される
 - [ ] ダークモード切り替えが正常に動作する
 - [ ] 印刷機能が正常に動作する
 - [ ] KaTeX ON/OFF切り替えが正常に動作する
+- [ ] HTMLエクスポート機能が正常に動作する
+- [ ] リモート画像がBase64化される（20MB以下）
 
 ### パフォーマンス
 - [ ] 大量のコンテンツでも初期表示が高速（2秒以内）
@@ -280,7 +368,9 @@ Mermaidダイアグラム描画機能をテストします。
 - 基本的なMarkdown機能 → `basic-features.md`
 - セキュリティ関連 → `security-tests.md`
 - HTMLタグ機能 → `html-tags-test.md`
-- 数式機能 → `katex-tests.md`
+- 数式機能 → `katex-tests.md`または`katex-dollar-sign-test.md`
 - ダイアグラム機能 → `mermaid-tests.md`
 - シンタックスハイライト → `syntax-highlight-test.md`
-- ネットワーク/プライバシー → `network-test.md`
+- 画像機能 → `local-images-test.md`または`remote-images-test.md`
+- パフォーマンス → `performance-test.md`
+- 統合テスト → `security_test.md`

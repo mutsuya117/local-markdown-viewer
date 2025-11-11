@@ -17,12 +17,12 @@
 - **Manifest Version**: 3（Manifest V3）
 
 ### 依存ライブラリ
-- **marked.js** v12.0.0 - Markdownパーサー
-- **highlight.js** v11.9.0 - シンタックスハイライト（140+言語対応）
-- **DOMPurify** v3.0.8 - HTMLサニタイゼーション（XSS対策）
+- **marked.js** v17.0.0 - Markdownパーサー
+- **highlight.js** v11.11.1 - シンタックスハイライト（140+言語対応）
+- **DOMPurify** v3.3.0 - HTMLサニタイゼーション（XSS対策）
 - **Mermaid** v11.12.1 - ダイアグラム描画ライブラリ
-- **KaTeX** v0.16.10 - 数式レンダリングライブラリ
-- **js-beautify** v1.15.1 - HTMLコード整形ライブラリ（エクスポート用）
+- **KaTeX** v0.16.25 - 数式レンダリングライブラリ
+- **js-beautify** v1.15.4 - HTMLコード整形ライブラリ（エクスポート用）
 
 ### ビルドツール
 - **ビルドプロセス**: なし

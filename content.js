@@ -114,6 +114,11 @@
     // github-sluggerのアルゴリズムを参考に実装
     // 参考: https://github.com/Flet/github-slugger
 
+    // textがundefinedまたはnullの場合は空文字列を返す
+    if (!text) {
+      return '';
+    }
+
     return text
       .toLowerCase()
       .trim()
@@ -137,9 +142,25 @@
   const usedIds = new Map();
 
   // 見出しのレンダラーをカスタマイズ
-  const originalHeading = renderer.heading.bind(renderer);
   renderer.heading = function(text, level, raw) {
-    let slug = generateSlug(raw);
+    // marked.jsのバージョンによって引数の形式が異なる
+    // v13以降: 第1引数がオブジェクトの場合がある
+    let headingText, headingLevel, headingRaw;
+
+    if (typeof text === 'object' && text !== null) {
+      // オブジェクト形式（marked v13+）
+      // インライントークン（リンクなど）をパースしてHTMLに変換
+      headingText = this.parser.parseInline(text.tokens);
+      headingLevel = text.depth;
+      headingRaw = text.raw || text.text;
+    } else {
+      // 従来の形式（text は既にHTMLレンダリング済み）
+      headingText = text;
+      headingLevel = level;
+      headingRaw = raw || text;
+    }
+
+    let slug = generateSlug(headingRaw);
 
     // 重複ID対策：同じIDが既に使われている場合は連番を付ける
     if (usedIds.has(slug)) {
@@ -150,7 +171,7 @@
       usedIds.set(slug, 0);
     }
 
-    return `<h${level} id="${slug}">${text}</h${level}>\n`;
+    return `<h${headingLevel} id="${slug}">${headingText}</h${headingLevel}>\n`;
   };
 
   // Mermaidコードブロックのカウンター
@@ -159,20 +180,40 @@
   // コードブロックのレンダラーをカスタマイズ（Mermaid対応）
   const originalCode = renderer.code.bind(renderer);
   renderer.code = function(code, language) {
+    // marked.jsのバージョンによって引数の形式が異なる
+    let codeText, codeLang, isObjectForm;
+
+    if (typeof code === 'object' && code !== null) {
+      // オブジェクト形式（marked v13+）
+      codeText = code.text;
+      codeLang = code.lang || '';
+      isObjectForm = true;
+    } else {
+      // 従来の形式
+      codeText = code;
+      codeLang = language || '';
+      isObjectForm = false;
+    }
+
     // Mermaidダイアグラムの場合は特別な処理
-    if (language === 'mermaid') {
+    if (codeLang === 'mermaid') {
       // mermaidクラスを持つdivとして出力（後でMermaidライブラリが描画）
-      const escapedCode = escapeHtml(code);
+      const escapedCode = escapeHtml(codeText);
 
       // ユニークなIDを生成してMapに元のコードを保存
       const mermaidId = `mermaid-source-${mermaidCounter}`;
-      mermaidCodeMap.set(mermaidId, code);
+      mermaidCodeMap.set(mermaidId, codeText);
       mermaidCounter++;
 
       return `<div class="mermaid" data-mermaid-id="${mermaidId}">${escapedCode}</div>\n`;
     }
     // それ以外は通常のコードブロック
-    return originalCode(code, language);
+    // オブジェクト形式の場合はそのまま渡す、従来形式の場合は個別の引数で渡す
+    if (isObjectForm) {
+      return originalCode.call(this, code, language);
+    } else {
+      return originalCode.call(this, codeText, codeLang);
+    }
   };
 
   // marked v12ではhooksを使う
