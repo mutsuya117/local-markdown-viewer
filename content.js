@@ -230,11 +230,12 @@
   marked.use({
     hooks: {
       postprocess(html) {
-        // コードブロックを検索してハイライトを適用
-        const div = document.createElement('div');
-        div.innerHTML = html;
+        // DOMParserを使用してHTMLを安全にパース（CSP警告を回避）
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
 
-        div.querySelectorAll('pre code').forEach((block) => {
+        // コードブロックを検索してハイライトを適用
+        doc.body.querySelectorAll('pre code').forEach((block) => {
           // 言語クラスを取得
           const langMatch = block.className.match(/language-(\w+)/);
           if (langMatch) {
@@ -260,7 +261,7 @@
           }
         });
 
-        return div.innerHTML;
+        return doc.body.innerHTML;
       }
     }
   });
@@ -405,12 +406,13 @@
   // 保護した数式ブロックを元に戻す（KaTeX有効時のみ）
   // セキュリティ: テキストノードとして復元することでXSSを防ぐ
   if (isKatexEnabled && (mathBlocks.length > 0 || disabledMathBlocks.length > 0)) {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
+    // DOMParserを使用してHTMLを安全にパース（画像読み込み警告を回避）
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
 
     // すべてのテキストノードを走査してプレースホルダーを探す（最適化版）
     const walker = document.createTreeWalker(
-      tempDiv,
+      doc.body,
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: function(node) {
@@ -459,15 +461,16 @@
       textNode.nodeValue = text;
     });
 
-    htmlContent = tempDiv.innerHTML;
+    htmlContent = doc.body.innerHTML;
   }
 
   // TOC（目次）を生成
   function generateTOC(html) {
     // 注意: ここで渡されるhtmlは既にDOMPurifyでサニタイズ済み
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    // DOMParserを使用してHTMLを安全にパース（画像読み込み警告を回避）
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const headings = doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
     if (headings.length === 0) {
       return {
@@ -503,7 +506,7 @@
     // TOCとコンテンツを別々に返す
     return {
       toc: tocHtml,
-      content: tempDiv.innerHTML
+      content: doc.body.innerHTML
     };
   }
 
@@ -633,19 +636,20 @@
 
     // セキュリティ: エクスポート前に再度サニタイズ（二重防御）
     // DOMPurifyで危険なdata:スキームなどを再度チェック
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = renderedContent;
+    // DOMParserを使用してHTMLを安全にパース（画像読み込み警告を回避）
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(renderedContent, 'text/html');
 
     // 実際にKaTeX要素が存在するかチェック
-    const katexElements = tempDiv.querySelectorAll('.katex');
+    const katexElements = doc.body.querySelectorAll('.katex');
     const hasKatexElements = katexElements.length > 0 && katexCSS !== '';
 
     // 実際にMermaid要素が存在するかチェック
-    const mermaidElements = tempDiv.querySelectorAll('.mermaid');
+    const mermaidElements = doc.body.querySelectorAll('.mermaid');
     const hasMermaidElements = mermaidElements.length > 0;
 
     // 危険なdata:スキームを持つ画像を削除
-    tempDiv.querySelectorAll('img[src^="data:"]').forEach(img => {
+    doc.body.querySelectorAll('img[src^="data:"]').forEach(img => {
       const src = img.getAttribute('src');
       if (src && !src.match(/^data:image\//i)) {
         img.removeAttribute('src');
@@ -653,7 +657,7 @@
     });
 
     // 危険なdata:スキームを持つリンクを削除
-    tempDiv.querySelectorAll('a[href^="data:"]').forEach(a => {
+    doc.body.querySelectorAll('a[href^="data:"]').forEach(a => {
       const href = a.getAttribute('href');
       if (href && !href.match(/^data:image\//i)) {
         a.removeAttribute('href');
@@ -662,7 +666,7 @@
 
     // MermaidのSVGをそのまま保存し、元のコードもdata-mermaid-code属性に保存
     // CDN読み込み成功時: 再描画、失敗時: 保存済みSVGを使用（オフライン対応）
-    const mermaidDivs = tempDiv.querySelectorAll('.mermaid');
+    const mermaidDivs = doc.body.querySelectorAll('.mermaid');
     const mermaidCodes = Array.from(mermaidCodeMap.values());
 
     mermaidDivs.forEach((mermaidDiv, index) => {
@@ -680,7 +684,7 @@
       }
     });
 
-    renderedContent = tempDiv.innerHTML;
+    renderedContent = doc.body.innerHTML;
 
     // HTMLを整形して視認性を向上（エクスポートファイルのデバッグ用）
     renderedContent = formatHTML(renderedContent);
