@@ -34,7 +34,6 @@ Local Markdown Viewer 是一个Chrome扩展程序，可以以GitHub样式精美�
 ・自动将图片嵌入为Base64（支持PNG、JPEG、GIF、WebP、SVG、BMP）
   - 本地图片：最大30MB/文件
   - 远程图片：最大20MB/文件（超过限制的保持为URL）
-  - 并行处理快速下载（同时处理多个图片）
 ・无需扩展程序即可在任何浏览器中查看，非常适合文档共享
 ・近乎完全离线支持：图片和Mermaid图表完全离线，KaTeX公式也可基本显示
 
