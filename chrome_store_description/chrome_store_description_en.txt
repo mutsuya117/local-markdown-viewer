@@ -114,3 +114,9 @@ A. English, Japanese, and Simplified Chinese are supported.
    The display language is automatically selected based on your Chrome browser language settings.
 
 
+【Open Source】
+
+This project is developed as open source.
+GitHub Repository: https://github.com/mutsuya117/local-markdown-viewer
+
+
