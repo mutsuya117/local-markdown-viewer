@@ -629,6 +629,16 @@
         console.warn('KaTeX CSSの読み込みに失敗しました:', error);
       }
     }
+
+    // Mermaid.jsを読み込んでエクスポートHTMLに埋め込み（完全オフライン対応）
+    let mermaidJS = '';
+    try {
+      const mermaidJsUrl = chrome.runtime.getURL('libs/mermaid.min.js');
+      const response = await fetch(mermaidJsUrl);
+      mermaidJS = await response.text();
+    } catch (error) {
+      console.warn('Mermaid.jsの読み込みに失敗しました:', error);
+    }
     // セキュリティ: 既にレンダリング済みのHTMLコンテンツを使用
     // Markdownを再パースすると、数式内のXSS攻撃を防ぐのが困難になるため
     let renderedContent = document.querySelector('.markdown-body').innerHTML;
@@ -707,8 +717,8 @@
   <!-- KaTeX CSS (埋め込み・フォントはCDNから読み込み) - 数式が存在する場合のみ -->
   ${hasKatexElements ? '<style>' + katexCSS + '</style>' : ''}
 
-  <!-- Mermaid JS - ダイアグラムが存在する場合のみ読み込み -->
-  ${hasMermaidElements ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.min.js"></script>' : ''}
+  <!-- Mermaid JS (埋め込み・完全オフライン対応) - ダイアグラムが存在する場合のみ -->
+  ${hasMermaidElements && mermaidJS ? '<script>' + mermaidJS + '</script>' : ''}
 
   <style>
     /* GitHub Markdown Style */

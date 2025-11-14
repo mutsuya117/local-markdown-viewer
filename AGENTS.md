@@ -186,7 +186,9 @@ C:\work\chrome_extention\local-markdown-viewer\
    - **セキュリティ重視**: 既にレンダリング済みのコンテンツを使用（Markdownを再パースしない）
    - **オフライン対応（ハイブリッド方式）**:
      - 画像: ローカル・リモート共にBase64埋め込み（完全オフライン）
-     - Mermaid SVG: エクスポート時のSVGを保存（完全オフライン、オンライン時は再描画）
+     - Mermaid: JavaScriptライブラリを完全埋め込み（完全オフライン）
+       - libs/mermaid.min.jsを読み込み、HTMLに直接埋め込み
+       - エクスポート時のSVGも保存（オフライン時のフォールバック、オンライン時は再描画）
      - KaTeX CSS: CSSを埋め込み、フォントのみCDN参照（ほぼオフライン）
        - libs/katex.min.cssを読み込み、フォントパスをCDN URLに置換
        - `url(fonts/` → `url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/`
@@ -200,7 +202,7 @@ C:\work\chrome_extention\local-markdown-viewer\
    - サポート形式: PNG, JPEG, GIF, WebP, SVG, BMP
    - エクスポートされたHTMLは目次、ダークモード切り替え、印刷機能を含む
    - Content Security Policy (CSP)による保護
-   - **推奨環境**: インターネット接続（KaTeXフォント、Mermaid再描画で最高品質）
+   - **推奨環境**: インターネット接続（KaTeXフォントで最高品質）
 
 9. **UIボタン**
    - すべてのボタンを40px × 40pxの円形に統一

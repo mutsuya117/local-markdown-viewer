@@ -42,6 +42,7 @@
     {
       "resources": [
         "libs/katex.min.css",
+        "libs/mermaid.min.js",
         "libs/fonts/*"
       ],
       "matches": [
