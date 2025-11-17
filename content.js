@@ -630,14 +630,23 @@
       }
     }
 
-    // Mermaid.jsを読み込んでエクスポートHTMLに埋め込み（完全オフライン対応）
+    // Mermaidダイアグラムの中にガントチャートが含まれているかチェック
+    // レンダリング済みのSVGの属性で厳密に判定（aria-roledescription="gantt"）
+    const mermaidSvgs = document.querySelectorAll('.markdown-body .mermaid svg');
+    const hasGanttChart = Array.from(mermaidSvgs).some(svg => {
+      return svg.getAttribute('aria-roledescription') === 'gantt';
+    });
+
+    // Mermaid.jsを読み込んでエクスポートHTMLに埋め込み（ガントチャートがある場合のみ）
     let mermaidJS = '';
-    try {
-      const mermaidJsUrl = chrome.runtime.getURL('libs/mermaid.min.js');
-      const response = await fetch(mermaidJsUrl);
-      mermaidJS = await response.text();
-    } catch (error) {
-      console.warn('Mermaid.jsの読み込みに失敗しました:', error);
+    if (hasGanttChart) {
+      try {
+        const mermaidJsUrl = chrome.runtime.getURL('libs/mermaid.min.js');
+        const response = await fetch(mermaidJsUrl);
+        mermaidJS = await response.text();
+      } catch (error) {
+        console.warn('Mermaid.jsの読み込みに失敗しました:', error);
+      }
     }
     // セキュリティ: 既にレンダリング済みのHTMLコンテンツを使用
     // Markdownを再パースすると、数式内のXSS攻撃を防ぐのが困難になるため
@@ -717,8 +726,8 @@
   <!-- KaTeX CSS (埋め込み・フォントはCDNから読み込み) - 数式が存在する場合のみ -->
   ${hasKatexElements ? '<style>' + katexCSS + '</style>' : ''}
 
-  <!-- Mermaid JS (埋め込み・完全オフライン対応) - ダイアグラムが存在する場合のみ -->
-  ${hasMermaidElements && mermaidJS ? '<script>' + mermaidJS + '</script>' : ''}
+  <!-- Mermaid JS (埋め込み・完全オフライン対応) - ガントチャートが存在する場合のみ -->
+  ${hasGanttChart && mermaidJS ? '<script>' + mermaidJS + '</script>' : ''}
 
   <style>
     /* GitHub Markdown Style */
@@ -1442,8 +1451,8 @@
         });
       }
 
-      ${hasMermaidElements ? `// Mermaidダイアグラムの初期化と描画
-      // オンライン時: CDNから読み込んで再描画
+      ${hasGanttChart ? `// Mermaidダイアグラムの初期化と描画（ガントチャートのみ）
+      // オンライン時: 埋め込まれたMermaid.jsで再描画
       // オフライン時: 保存済みSVGを使用
       if (typeof mermaid !== 'undefined') {
         // Mermaidの設定（デフォルトテーマを使用）
