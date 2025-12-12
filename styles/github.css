@@ -124,6 +124,7 @@
   border-radius: 6px;
   margin-top: 0;
   margin-bottom: 16px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 .markdown-body pre code {
