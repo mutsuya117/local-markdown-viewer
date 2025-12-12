@@ -112,7 +112,7 @@
   font-size: 85%;
   background-color: rgba(175, 184, 193, 0.2);
   border-radius: 6px;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Noto Sans Mono CJK JP", "Source Han Code JP", "MS Gothic", "Osaka-Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 .markdown-body pre {
@@ -124,7 +124,6 @@
   border-radius: 6px;
   margin-top: 0;
   margin-bottom: 16px;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Noto Sans Mono CJK JP", "Source Han Code JP", "MS Gothic", "Osaka-Mono", monospace;
 }
 
 .markdown-body pre code {
