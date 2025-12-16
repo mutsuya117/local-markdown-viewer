@@ -18,7 +18,6 @@
 | 8 | [ローカル画像テスト](#8-ローカル画像テストlocal-images-testmd) | [local-images-test.md](local-images-test.md) | ⭐⭐ | 画像 |
 | 9 | [リモート画像テスト](#9-リモート画像テストremote-images-testmd) | [remote-images-test.md](remote-images-test.md) | ⭐⭐ | 画像 |
 | 10 | [パフォーマンステスト](#10-パフォーマンステストperformance-testmd) | [performance-test.md](performance-test.md) | ⭐⭐ | パフォーマンス |
-| 11 | [セキュリティ＆機能テスト](#11-セキュリティ機能テストsecurity_testmd) | [security_test.md](security_test.md) | ⭐ | 統合 |
 
 ---
 
@@ -161,7 +160,7 @@ Mermaidダイアグラム描画機能をテストします。
 
 ---
 
-### 6. [シンタックスハイライトテスト](syntax-highlight-test.md)
+### 7. [シンタックスハイライトテスト](syntax-highlight-test.md)
 **ファイル**: `syntax-highlight-test.md`
 
 コードブロックのシンタックスハイライト機能をテストします。
@@ -244,33 +243,6 @@ HTMLエクスポート機能のリモート画像埋め込みをテストしま�
 
 ---
 
-### 11. [セキュリティ＆機能テスト](security_test.md)
-**ファイル**: `security_test.md`
-
-ライブラリアップデート後の統合テストファイルです。
-
-**テスト内容**:
-- KaTeX数式レンダリング（インライン、ディスプレイ、LaTeX形式）
-- 価格表示の誤認識テスト
-- XSS防御（DOMPurify）
-  - scriptタグ、イベントハンドラー、JavaScript URL
-  - HTML属性、SVG経由のXSS
-- Markdownレンダリング（コードブロック、テーブル、タスクリスト、引用、画像）
-- Mermaidダイアグラム（フローチャート、シーケンス図）
-- KaTeX DoS対策（複雑な数式、マトリックス、積分）
-
-**期待される結果**:
-- ✅ すべての数式が正しくレンダリング
-- ✅ 価格表示が誤認識されない
-- ✅ すべてのXSS攻撃がブロックされる
-- ✅ Markdown要素が正しく表示
-- ✅ Mermaidダイアグラムが正しく描画
-- ✅ 複雑な数式も正しく処理（DoS攻撃防止）
-
-**推奨度**: ⭐ ライブラリアップデート後の確認用
-
----
-
 ## 🔍 推奨テスト順序
 
 新しいバージョンをテストする際は、以下の順序でテストすることを推奨します：
@@ -310,9 +282,6 @@ HTMLエクスポート機能のリモート画像埋め込みをテストしま�
 
 10. **ローカル画像テスト** (`local-images-test.md`)（オプション）
     - ローカル画像機能を使用する場合のみ
-
-11. **セキュリティ＆機能テスト** (`security_test.md`)（オプション）
-    - ライブラリアップデート後の統合確認
 
 ---
 
@@ -373,4 +342,3 @@ HTMLエクスポート機能のリモート画像埋め込みをテストしま�
 - シンタックスハイライト → `syntax-highlight-test.md`
 - 画像機能 → `local-images-test.md`または`remote-images-test.md`
 - パフォーマンス → `performance-test.md`
-- 統合テスト → `security_test.md`
