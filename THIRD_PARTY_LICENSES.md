@@ -6,7 +6,7 @@ This application uses the following open source libraries:
 
 ## marked.js
 
-**Version**: 12.0.0
+**Version**: 17.0.0
 **License**: MIT License
 **Website**: https://marked.js.org/
 **Repository**: https://github.com/markedjs/marked
@@ -38,7 +38,7 @@ SOFTWARE.
 
 ## highlight.js
 
-**Version**: 11.9.0
+**Version**: 11.11.1
 **License**: BSD 3-Clause License
 **Website**: https://highlightjs.org/
 **Repository**: https://github.com/highlightjs/highlight.js
@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## DOMPurify
 
-**Version**: 3.0.8
+**Version**: 3.3.0
 **License**: Apache License 2.0 / MPL 2.0 (Dual License)
 **Repository**: https://github.com/cure53/DOMPurify
 
@@ -138,7 +138,7 @@ SOFTWARE.
 
 ## KaTeX
 
-**Version**: 0.16.10
+**Version**: 0.16.25
 **License**: MIT License
 **Website**: https://katex.org/
 **Repository**: https://github.com/KaTeX/KaTeX
@@ -169,7 +169,7 @@ SOFTWARE.
 
 ## js-beautify
 
-**Version**: 1.15.1
+**Version**: 1.15.4
 **License**: MIT License
 **Website**: https://beautifier.io/
 **Repository**: https://github.com/beautifier/js-beautify

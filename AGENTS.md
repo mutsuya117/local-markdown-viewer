@@ -32,7 +32,7 @@
 ## プロジェクト構造
 
 ```
-C:\work\chrome_extention\local-markdown-viewer\
+local-markdown-viewer/
 ├── manifest.json          # Chrome拡張機能のマニフェストファイル（Manifest V3）
 ├── content.js            # メインのコンテンツスクリプト
 ├── background.js         # Background Service Worker（画像Base64変換用）
@@ -308,7 +308,7 @@ C:\work\chrome_extention\local-markdown-viewer\
 
 ## 注意事項
 
-- この拡張機能は日本語ユーザー向けであり、UI・ドキュメントは日本語のみ
+- この拡張機能は多言語対応（日本語、英語、中国語簡体字）
 - package.jsonは存在しない（npmプロジェクトではない）
 - ビルドやトランスパイルのプロセスはない
 - 全てのファイルはそのまま使用される
