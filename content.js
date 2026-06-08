@@ -631,8 +631,8 @@
         let css = await response.text();
 
         // CSS内のフォントパスを絶対URL（CDN）に置換
-        // 例: url(fonts/KaTeX_Main-Regular.woff2) → url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/KaTeX_Main-Regular.woff2)
-        css = css.replace(/url\(fonts\//g, 'url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/');
+        // 例: url(fonts/KaTeX_Main-Regular.woff2) → url(https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/fonts/KaTeX_Main-Regular.woff2)
+        css = css.replace(/url\(fonts\//g, 'url(https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/fonts/');
 
         katexCSS = css;
       } catch (error) {

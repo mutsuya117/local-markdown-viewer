@@ -19,9 +19,9 @@
 ### 依存ライブラリ
 - **marked.js** v17.0.0 - Markdownパーサー
 - **highlight.js** v11.11.1 - シンタックスハイライト（140+言語対応）
-- **DOMPurify** v3.3.0 - HTMLサニタイゼーション（XSS対策）
-- **Mermaid** v11.12.1 - ダイアグラム描画ライブラリ
-- **KaTeX** v0.16.25 - 数式レンダリングライブラリ
+- **DOMPurify** v3.4.8 - HTMLサニタイゼーション（XSS対策）
+- **Mermaid** v11.15.0 - ダイアグラム描画ライブラリ
+- **KaTeX** v0.16.47 - 数式レンダリングライブラリ
 - **js-beautify** v1.15.4 - HTMLコード整形ライブラリ（エクスポート用）
 
 ### ビルドツール
@@ -193,7 +193,7 @@ local-markdown-viewer/
        - それ以外（フローチャート、シーケンス図など）: SVGのみ保存（完全オフライン、軽量）
      - KaTeX CSS: CSSを埋め込み、フォントのみCDN参照（ほぼオフライン）
        - libs/katex.min.cssを読み込み、フォントパスをCDN URLに置換
-       - `url(fonts/` → `url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/`
+       - `url(fonts/` → `url(https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/fonts/`
    - **並列処理による高速化**:
      - すべての画像を並列ダウンロード・変換（Promise.allSettled使用）
      - 重複画像の除外（Set使用）
