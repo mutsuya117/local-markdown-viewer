@@ -96,7 +96,7 @@
     "description": "What is this section title"
   },
   "setupWhatIsThisDesc": {
-    "message": "Enabling this setting allows Local Markdown Viewer to access pages opened with the <code>file://</code> protocol (local files). Specifically, when you open a <code>.md</code> or <code>.markdown</code> file on your computer in Chrome, this extension can read the Markdown text, convert it to HTML, and display it beautifully.",
+    "message": "Enabling this setting allows Local Markdown Viewer to access pages opened with the <code>file://</code> protocol (local files). Specifically, when you open a <code>.md</code>, <code>.markdown</code>, or <code>.mkdn</code> file on your computer in Chrome, this extension can read the Markdown text, convert it to HTML, and display it beautifully.",
     "description": "What is this description"
   },
   "setupWhyNeeded": {
@@ -140,7 +140,7 @@
     "description": "Setup complete title"
   },
   "setupCompleteDesc": {
-    "message": "Now, when you open a local <code>.md</code> or <code>.markdown</code> file in Chrome, it will be beautifully displayed in GitHub style.",
+    "message": "Now, when you open a local <code>.md</code>, <code>.markdown</code>, or <code>.mkdn</code> file in Chrome, it will be beautifully displayed in GitHub style.",
     "description": "Setup complete description"
   },
   "setupUsageTitle": {
@@ -148,7 +148,7 @@
     "description": "Usage title"
   },
   "setupUsageDesc": {
-    "message": "Right-click a Markdown file (<code>.md</code> or <code>.markdown</code>) → \"Open with\" → Select \"Google Chrome\". Alternatively, you can drag and drop the file into Chrome's address bar.",
+    "message": "Right-click a Markdown file (<code>.md</code>, <code>.markdown</code>, or <code>.mkdn</code>) → \"Open with\" → Select \"Google Chrome\". Alternatively, you can drag and drop the file into Chrome's address bar.",
     "description": "Usage description"
   }
 }

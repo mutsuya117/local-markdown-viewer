@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## DOMPurify
 
-**Version**: 3.3.0
+**Version**: 3.4.8
 **License**: Apache License 2.0 / MPL 2.0 (Dual License)
 **Repository**: https://github.com/cure53/DOMPurify
 
@@ -107,7 +107,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ## Mermaid
 
-**Version**: 11.12.1
+**Version**: 11.15.0
 **License**: MIT License
 **Website**: https://mermaid.js.org/
 **Repository**: https://github.com/mermaid-js/mermaid
@@ -138,7 +138,7 @@ SOFTWARE.
 
 ## KaTeX
 
-**Version**: 0.16.25
+**Version**: 0.16.47
 **License**: MIT License
 **Website**: https://katex.org/
 **Repository**: https://github.com/KaTeX/KaTeX

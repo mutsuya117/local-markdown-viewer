@@ -67,10 +67,20 @@
     `${MONO_FONT_CDN_BASE}/SarasaMonoSC-Regular.woff2`
   );
 
-  // .mdファイルかどうかをチェック
+  // .md / .markdown / .mkdn ファイルかどうかをチェック
   const path = window.location.pathname;
-  if (!path.match(/\.(md|markdown)$/i)) {
+  if (!path.match(/\.(md|markdown|mkdn)$/i)) {
     return;
+  }
+
+  // パス内のパーセントエンコードをデコード
+  // （日本語などを含むファイル名がエクスポート・印刷・タイトルで文字化けしないように）
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(path);
+  } catch (e) {
+    // 不正なエンコードでデコードに失敗した場合は元のパスをそのまま使用
+    decodedPath = path;
   }
 
   // 生のMarkdownテキストを取得
@@ -686,8 +696,8 @@
         let css = await response.text();
 
         // CSS内のフォントパスを絶対URL（CDN）に置換
-        // 例: url(fonts/KaTeX_Main-Regular.woff2) → url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/KaTeX_Main-Regular.woff2)
-        css = css.replace(/url\(fonts\//g, 'url(https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/fonts/');
+        // 例: url(fonts/KaTeX_Main-Regular.woff2) → url(https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/fonts/KaTeX_Main-Regular.woff2)
+        css = css.replace(/url\(fonts\//g, 'url(https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/fonts/');
 
         katexCSS = css;
       } catch (error) {
@@ -775,7 +785,7 @@
     tocContent = formatHTML(tocContent);
 
     // ファイル名を取得（拡張子なし）
-    const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '');
+    const fileName = decodedPath.split('/').pop().replace(/\.(md|markdown|mkdn)$/i, '');
 
     // エクスポート用HTMLテンプレート
     // CDNからライブラリを読み込み、完全なスタンドアロンHTMLとして動作
@@ -1620,7 +1630,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; img-src 'self' data: file: https: http:; style-src 'self' 'unsafe-inline'; script-src 'none';">
-  <title>${escapeHtml(path.split('/').pop())} - Markdown Preview</title>
+  <title>${escapeHtml(decodedPath.split('/').pop())} - Markdown Preview</title>
   <link rel="stylesheet" href="${chrome.runtime.getURL('libs/katex.min.css')}">
   <style>
     /* 等幅フォント(Sarasa Mono) - 罫線テーブルの桁ずれ防止。同梱フォントを読み込み */
@@ -2485,7 +2495,7 @@
         const exportHTML = await generateExportHTML(isKatexEnabled, imageMap);
 
         // ファイル名を生成
-        const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '') + '.html';
+        const fileName = decodedPath.split('/').pop().replace(/\.(md|markdown|mkdn)$/i, '') + '.html';
 
         // Blobを作成
         const blob = new Blob([exportHTML], { type: 'text/html;charset=utf-8' });
