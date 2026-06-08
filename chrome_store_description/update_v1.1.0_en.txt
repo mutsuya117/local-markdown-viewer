@@ -15,7 +15,7 @@
 - Font priority automatically switches between Japanese / Simplified Chinese / Traditional Chinese based on the UI language.
 
 ■ Non-ASCII Filename Garbling Fixed (Bug Fix)
-- Fixed garbled text in HTML export, printing, and the page title when the file name contained non-ASCII characters such as Japanese.
+- Fixed garbled text in HTML export, printing, and the page title when the file name contained non-ASCII (multi-byte) characters such as Japanese, Chinese, or emoji.
 
 ■ Bundled Library Updates (Maintenance)
 - Updated to DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47 for improved security and stability.
