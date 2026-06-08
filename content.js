@@ -8,6 +8,16 @@
     return;
   }
 
+  // パス内のパーセントエンコードをデコード
+  // （日本語などを含むファイル名がエクスポート・印刷・タイトルで文字化けしないように）
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(path);
+  } catch (e) {
+    // 不正なエンコードでデコードに失敗した場合は元のパスをそのまま使用
+    decodedPath = path;
+  }
+
   // 生のMarkdownテキストを取得
   let markdownText = document.body.textContent;
 
@@ -710,7 +720,7 @@
     tocContent = formatHTML(tocContent);
 
     // ファイル名を取得（拡張子なし）
-    const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '');
+    const fileName = decodedPath.split('/').pop().replace(/\.(md|markdown)$/i, '');
 
     // エクスポート用HTMLテンプレート
     // CDNからライブラリを読み込み、完全なスタンドアロンHTMLとして動作
@@ -1550,7 +1560,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; img-src 'self' data: file: https: http:; style-src 'self' 'unsafe-inline'; script-src 'none';">
-  <title>${escapeHtml(path.split('/').pop())} - Markdown Preview</title>
+  <title>${escapeHtml(decodedPath.split('/').pop())} - Markdown Preview</title>
   <link rel="stylesheet" href="${chrome.runtime.getURL('libs/katex.min.css')}">
   <style>
     /* GitHub Markdown Style */
@@ -2410,7 +2420,7 @@
         const exportHTML = await generateExportHTML(isKatexEnabled, imageMap);
 
         // ファイル名を生成
-        const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '') + '.html';
+        const fileName = decodedPath.split('/').pop().replace(/\.(md|markdown)$/i, '') + '.html';
 
         // Blobを作成
         const blob = new Blob([exportHTML], { type: 'text/html;charset=utf-8' });
