@@ -181,6 +181,22 @@
   background-color: #f6f8fa;
 }
 
+/* YAMLフロントマター表示用テーブル（GitHub互換） */
+.markdown-body .frontmatter-table th {
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.markdown-body .frontmatter-table td > ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.markdown-body .frontmatter-table table {
+  margin: 0;
+}
+
 .markdown-body img {
   max-width: 100%;
   box-sizing: content-box;
