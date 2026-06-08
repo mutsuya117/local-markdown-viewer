@@ -198,6 +198,7 @@
     });
 
     let pos = 0;
+    let clean = true;   // すべての行をYAMLとして解釈できたか（誤検知防止に使用）
 
     // 指定インデント階層の key: value ペアを再帰的にパース
     function parseNodes(level) {
@@ -206,10 +207,13 @@
         const content = lines[pos].content;
         // この階層でリスト項目が来た場合は呼び出し側に委ねる
         if (content === '-' || content.startsWith('- ')) break;
-        const m = content.match(/^([^:]+):\s?(.*)$/);
-        if (!m) { pos++; continue; }   // 解釈不能な行はスキップ
+        // コロンの後は「行末」または「空白＋値」のみマッピングとして認める。
+        // 「key:value」のようにコロン直後に空白が無い行はYAML的にはマッピングでは
+        // ないため、通常の散文（例: 「http://...」を含む行）を誤検知しない。
+        const m = content.match(/^([^:]+):(?:\s+(.*))?$/);
+        if (!m) { clean = false; pos++; continue; }   // 解釈不能な行
         const key = m[1].trim();
-        const inline = m[2];
+        const inline = m[2] || '';
         pos++;
         if (inline !== '') {
           // 値が同じ行にある（スカラー）
@@ -244,7 +248,11 @@
       return pairs;
     }
 
-    return parseNodes(0);
+    const pairs = parseNodes(0);
+    // 未消費の行が残った場合も「解釈しきれなかった」とみなす
+    // （インデント不整合・ブロックスカラー等を含む文書を誤って取り込まない）
+    if (pos !== lines.length) clean = false;
+    return { pairs, clean };
   }
 
   // パース結果のvalueを、エスケープ済みの安全なHTMLに変換
@@ -272,9 +280,11 @@
     const match = text.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
     if (!match) return null;
 
-    const pairs = parseFrontmatterYaml(match[1]);
-    // 有効なキーが1件も無ければフロントマターとみなさない（水平線などの誤検知防止）
-    if (pairs.length === 0) return null;
+    const { pairs, clean } = parseFrontmatterYaml(match[1]);
+    // 有効なキーが1件以上、かつブロック内の全行をYAMLとして解釈できた場合のみ
+    // フロントマターとみなす。これにより、先頭が「---」の通常文書（散文や後方の
+    // setext見出しの「---」を含む）を誤って取り込み、本文を消してしまう事故を防ぐ。
+    if (!clean || pairs.length === 0) return null;
 
     const rows = pairs.map(p => '<tr><th>' + escapeHtml(p.key) + '</th><td>' +
       renderFrontmatterValue(p.value) + '</td></tr>').join('');
