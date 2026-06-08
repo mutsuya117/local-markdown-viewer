@@ -54,9 +54,17 @@
 
   // エクスポート用: CDN（jsDelivr経由でリポジトリのフォントファイル）を参照
   // ※KaTeXフォントと同様にCDN参照方式（CSPで font-src https://cdn.jsdelivr.net を許可済み）
+  //
+  // 重要: バージョン（コミットSHA）を固定する。
+  //   エクスポートHTMLは恒久的な成果物のため、移動するブランチ（@main等）を指すと
+  //   ファイル名変更・移動・main更新で過去の成果物が一斉に壊れる。コミットSHA固定なら
+  //   jsDelivrが immutable キャッシュで恒久配信し、フォントファイルを含むコミットさえ
+  //   存在すればマージ前でも動作する。
+  //   フォントファイルを更新した場合は、新しいファイルを含むコミットのSHAに更新すること。
+  const MONO_FONT_CDN_BASE = 'https://cdn.jsdelivr.net/gh/mutsuya117/local-markdown-viewer@b2fa5ce7b360435ac3d43101ef5cd8cb720c5808/libs/fonts';
   const monoFontFaceCSSForExport = getMonoFontFaceCSS(
-    'https://cdn.jsdelivr.net/gh/mutsuya117/local-markdown-viewer@main/libs/fonts/SarasaMonoJ-Regular.woff2',
-    'https://cdn.jsdelivr.net/gh/mutsuya117/local-markdown-viewer@main/libs/fonts/SarasaMonoSC-Regular.woff2'
+    `${MONO_FONT_CDN_BASE}/SarasaMonoJ-Regular.woff2`,
+    `${MONO_FONT_CDN_BASE}/SarasaMonoSC-Regular.woff2`
   );
 
   // .mdファイルかどうかをチェック
