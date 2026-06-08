@@ -1,0 +1,18 @@
+[What's New in Version 1.1.0]
+
+■ YAML Front Matter Rendering (New)
+- YAML front matter enclosed by "---" at the top of a file is now displayed as a clean, GitHub-style metadata table.
+- Supports scalars, lists, and nested maps.
+- Strict detection avoids false positives, so horizontal rules and heading "---" are left untouched.
+- Works in both live preview and exported HTML.
+
+■ .mkdn Extension Support (New)
+- In addition to .md and .markdown, Markdown files with the .mkdn extension can now be previewed.
+
+■ Non-ASCII Filename Garbling Fixed (Bug Fix)
+- Fixed garbled text in HTML export, printing, and the page title when the file name contained non-ASCII (multi-byte) characters such as Japanese, Chinese, or emoji.
+
+■ Bundled Library Updates (Maintenance)
+- Updated to DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47 for improved security and stability.
+
+Thank you for using Local Markdown Viewer. We welcome your feedback and feature requests.

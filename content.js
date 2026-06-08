@@ -2,41 +2,6 @@
 (async function() {
   'use strict';
 
-  // コードブロックの等幅フォント設定（フォントは同梱せず、OS標準のCJK等幅フォントを優先）
-  //
-  // 罫線（─│┌┐└┘├┤┬┴┼ ╔═╗ など）を使ったテーブルがコードブロック内でずれる問題への対応。
-  // 原因はラテン文字用等幅フォントとCJKフォールバックフォントの字幅比が1:2にならないこと。
-  // CJK等幅フォントは1書体内で「半角ラテン/半角罫線=1 : 全角CJK=2」の正確な比率を持つため、
-  // これをスタック先頭に置くとコードブロック全体が単一書体で描画され、日本語・中国語・英語が
-  // 混在しても罫線テーブルが揃う。OS標準搭載フォントを使うので同梱・ダウンロードは不要で、
-  // オフラインでもエクスポートHTMLでもそのまま機能する。
-  //
-  // UI言語に応じて字形の地域標準形を優先（簡体字/繁体字の中国語、それ以外は日本語フォントを先頭）。
-  function getMonoFontStack() {
-    let lang = '';
-    try {
-      lang = (chrome.i18n.getUILanguage() || '').toLowerCase();
-    } catch (e) {
-      lang = (navigator.language || '').toLowerCase();
-    }
-    // OS標準のCJK等幅フォント:
-    //   Windows(日): BIZ UDGothic / MS Gothic、 Windows(簡): NSimSun、 Windows(繁): MingLiU
-    //   macOS: Osaka-Mono、 Linux: Noto Sans Mono CJK
-    // 中国語は簡体字/繁体字で字形の地域標準形が異なるため、UI言語で先頭フォントを切り替える。
-    let cjkFonts;
-    if (lang.startsWith('zh')) {
-      // 繁体字（台湾/香港/マカオ、または -Hant 付き）かどうかを判定
-      const isTraditional = /^zh-(tw|hk|mo)/.test(lang) || lang.includes('hant');
-      cjkFonts = isTraditional
-        ? '"MingLiU", "Noto Sans Mono CJK TC", "MS Gothic", "Osaka-Mono"'
-        : '"NSimSun", "Noto Sans Mono CJK SC", "MS Gothic", "Osaka-Mono"';
-    } else {
-      cjkFonts = '"BIZ UDGothic", "MS Gothic", "Osaka-Mono", "Noto Sans Mono CJK JP"';
-    }
-    // CJK等幅フォントが無い環境向けのフォールバック（英数字のみの罫線表は揃う）
-    return cjkFonts + ', ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace';
-  }
-
   // .md / .markdown / .mkdn ファイルかどうかをチェック
   const path = window.location.pathname;
   if (!path.match(/\.(md|markdown|mkdn)$/i)) {
@@ -1019,7 +984,6 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      /* インラインコードは通常の等幅フォント（罫線揃えはコードブロックのみで必要なため） */
       font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
       vertical-align: baseline;
     }
@@ -1046,10 +1010,6 @@
       background-color: transparent;
       border: 0;
       font-size: 100%;
-      /* 罫線テーブルがずれないようコードブロックにOS標準のCJK等幅フォントを優先（同梱なし） */
-      font-family: ${getMonoFontStack()};
-      /* 罫線が合字で連結されないように合字を無効化 */
-      font-variant-ligatures: none;
     }
     .markdown-body table {
       border-spacing: 0;
@@ -1860,7 +1820,6 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      /* インラインコードは通常の等幅フォント（罫線揃えはコードブロックのみで必要なため） */
       font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
       vertical-align: baseline;
     }
@@ -1887,10 +1846,6 @@
       background-color: transparent;
       border: 0;
       font-size: 100%;
-      /* 罫線テーブルがずれないようコードブロックにOS標準のCJK等幅フォントを優先（同梱なし） */
-      font-family: ${getMonoFontStack()};
-      /* 罫線が合字で連結されないように合字を無効化 */
-      font-variant-ligatures: none;
     }
     .markdown-body table {
       border-spacing: 0;
