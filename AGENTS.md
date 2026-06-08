@@ -7,7 +7,7 @@
 - **プロジェクト名**: Local Markdown Viewer
 - **種類**: Chrome拡張機能
 - **対象ユーザー**: グローバルユーザー（日本語、英語、中国語簡体字に対応）
-- **目的**: ローカルのMarkdownファイル（.md, .markdown）をGitHubスタイルで美しくプレビュー表示する
+- **目的**: ローカルのMarkdownファイル（.md, .markdown, .mkdn）をGitHubスタイルで美しくプレビュー表示する
 
 ## 技術スタック
 
