@@ -56,6 +56,17 @@
   // 生のMarkdownテキストを取得
   let markdownText = document.body.textContent;
 
+  // YAMLフロントマター（GitHub互換）を抽出してテーブルHTMLに変換
+  // 検出できた場合のみ本文から取り除き、後で整形済みテーブルを先頭に差し込む。
+  // 検出条件は厳密（後述のextractFrontmatter参照）で、通常ドキュメントの
+  // 水平線や見出しの「---」を誤ってフロントマター扱いしない。
+  let frontmatterHtml = '';
+  const frontmatter = extractFrontmatter(markdownText);
+  if (frontmatter) {
+    frontmatterHtml = frontmatter.html;
+    markdownText = frontmatter.rest;
+  }
+
   // Mermaidの元のコードを保存するMap（エクスポート用）
   const mermaidCodeMap = new Map();
 
@@ -152,6 +163,135 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  // ===== YAMLフロントマター対応（GitHub互換） =====
+  // ファイル先頭の「---」で始まり「---」で閉じるブロックを、メタデータの表として整形する。
+  // 通常ドキュメント（水平線や見出しの「---」）を壊さないよう、厳密な条件でのみ検出する:
+  //   1. ファイルの先頭が「---」だけの行で始まる
+  //   2. それを閉じる「---」だけの行が存在する
+  //   3. 中身がYAMLマッピング（key: value）として1件以上のキーを持つ
+  // 上記すべてを満たさない場合はフロントマターとみなさず、元のテキストをそのまま使う。
+
+  // クォートで囲まれた値の前後クォートを除去（前後の空白も除去）
+  function stripFrontmatterQuotes(s) {
+    const t = s.trim();
+    if (t.length >= 2 &&
+        ((t[0] === '"' && t[t.length - 1] === '"') ||
+         (t[0] === "'" && t[t.length - 1] === "'"))) {
+      return t.slice(1, -1);
+    }
+    return t;
+  }
+
+  // インデントベースの簡易YAMLパーサ（フロントマターの一般的な記法のみ対応）
+  // 対応: スカラー（key: value）、リスト（key: 配下の "- item"）、ネストしたマップ。
+  // 解釈できない行は安全にスキップする（誤動作で表示が壊れないことを優先）。
+  function parseFrontmatterYaml(body) {
+    // 空行・コメント行を除外し、各行のインデント量と内容を保持
+    const lines = [];
+    body.split(/\r?\n/).forEach(raw => {
+      if (/^\s*$/.test(raw)) return;   // 空行
+      if (/^\s*#/.test(raw)) return;   // コメント行
+      const indent = raw.match(/^ */)[0].length;
+      lines.push({ indent, content: raw.slice(indent) });
+    });
+
+    let pos = 0;
+    let clean = true;   // すべての行をYAMLとして解釈できたか（誤検知防止に使用）
+
+    // 指定インデント階層の key: value ペアを再帰的にパース
+    function parseNodes(level) {
+      const pairs = [];
+      while (pos < lines.length && lines[pos].indent === level) {
+        const content = lines[pos].content;
+        // この階層でリスト項目が来た場合は呼び出し側に委ねる
+        if (content === '-' || content.startsWith('- ')) break;
+        // コロンの後は「行末」または「空白＋値」のみマッピングとして認める。
+        // 「key:value」のようにコロン直後に空白が無い行はYAML的にはマッピングでは
+        // ないため、通常の散文（例: 「http://...」を含む行）を誤検知しない。
+        const m = content.match(/^([^:]+):(?:\s+(.*))?$/);
+        if (!m) { clean = false; pos++; continue; }   // 解釈不能な行
+        const key = m[1].trim();
+        const inline = m[2] || '';
+        pos++;
+        if (inline !== '') {
+          // 値が同じ行にある（スカラー）
+          pairs.push({ key, value: { type: 'scalar', text: stripFrontmatterQuotes(inline) } });
+          continue;
+        }
+        // 値が次行以降（子要素）にある場合
+        if (pos < lines.length && lines[pos].indent > level) {
+          const childLevel = lines[pos].indent;
+          const childContent = lines[pos].content;
+          if (childContent === '-' || childContent.startsWith('- ')) {
+            // リスト
+            const items = [];
+            while (pos < lines.length &&
+                   lines[pos].indent === childLevel &&
+                   (lines[pos].content === '-' || lines[pos].content.startsWith('- '))) {
+              const itemText = lines[pos].content === '-' ? '' : lines[pos].content.slice(2);
+              items.push(stripFrontmatterQuotes(itemText));
+              pos++;
+            }
+            pairs.push({ key, value: { type: 'list', items } });
+          } else {
+            // ネストしたマップ
+            const childPairs = parseNodes(childLevel);
+            pairs.push({ key, value: { type: 'map', pairs: childPairs } });
+          }
+        } else {
+          // 値なし
+          pairs.push({ key, value: { type: 'scalar', text: '' } });
+        }
+      }
+      return pairs;
+    }
+
+    const pairs = parseNodes(0);
+    // 未消費の行が残った場合も「解釈しきれなかった」とみなす
+    // （インデント不整合・ブロックスカラー等を含む文書を誤って取り込まない）
+    if (pos !== lines.length) clean = false;
+    return { pairs, clean };
+  }
+
+  // パース結果のvalueを、エスケープ済みの安全なHTMLに変換
+  function renderFrontmatterValue(value) {
+    if (value.type === 'scalar') {
+      return escapeHtml(value.text);
+    }
+    if (value.type === 'list') {
+      if (value.items.length === 0) return '';
+      return '<ul>' + value.items.map(it => '<li>' + escapeHtml(it) + '</li>').join('') + '</ul>';
+    }
+    if (value.type === 'map') {
+      if (value.pairs.length === 0) return '';
+      return '<table class="frontmatter-table">' +
+        value.pairs.map(p => '<tr><th>' + escapeHtml(p.key) + '</th><td>' +
+          renderFrontmatterValue(p.value) + '</td></tr>').join('') +
+        '</table>';
+    }
+    return '';
+  }
+
+  // フロントマターを抽出してテーブルHTMLに変換する（検出できなければnullを返す）
+  function extractFrontmatter(text) {
+    // 先頭が「---」だけの行で始まり、「---」だけの行で閉じるブロックのみ対象
+    const match = text.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+    if (!match) return null;
+
+    const { pairs, clean } = parseFrontmatterYaml(match[1]);
+    // 有効なキーが1件以上、かつブロック内の全行をYAMLとして解釈できた場合のみ
+    // フロントマターとみなす。これにより、先頭が「---」の通常文書（散文や後方の
+    // setext見出しの「---」を含む）を誤って取り込み、本文を消してしまう事故を防ぐ。
+    if (!clean || pairs.length === 0) return null;
+
+    const rows = pairs.map(p => '<tr><th>' + escapeHtml(p.key) + '</th><td>' +
+      renderFrontmatterValue(p.value) + '</td></tr>').join('');
+    // セキュリティ: 全テキストはescapeHtml済み。生成したテーブルもこの後DOMPurifyを通る。
+    const html = '<table class="frontmatter-table">' + rows + '</table>\n';
+
+    return { html, rest: text.slice(match[0].length) };
   }
 
   // 見出しテキストからスラッグ（ID）を生成する関数（github-slugger互換）
@@ -313,6 +453,11 @@
 
   // Markdownをパース
   let rawHtml = marked.parse(markdownText);
+
+  // フロントマターのテーブルを本文の先頭に差し込む（この後DOMPurifyでサニタイズされる）
+  if (frontmatterHtml) {
+    rawHtml = frontmatterHtml + rawHtml;
+  }
 
   // DOMPurifyでサニタイズする前に、危険なタグをエスケープ（GitHub互換）
   // 以下のタグは削除ではなくエスケープして文字列表示
@@ -932,6 +1077,19 @@
     }
     .markdown-body table tr:nth-child(2n) {
       background-color: #f6f8fa;
+    }
+    /* YAMLフロントマター表示用テーブル（GitHub互換） */
+    .markdown-body .frontmatter-table th {
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .markdown-body .frontmatter-table td > ul {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+    .markdown-body .frontmatter-table table {
+      margin: 0;
     }
     .markdown-body img {
       max-width: 100%;
@@ -1760,6 +1918,19 @@
     }
     .markdown-body table tr:nth-child(2n) {
       background-color: #f6f8fa;
+    }
+    /* YAMLフロントマター表示用テーブル（GitHub互換） */
+    .markdown-body .frontmatter-table th {
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .markdown-body .frontmatter-table td > ul {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+    .markdown-body .frontmatter-table table {
+      margin: 0;
     }
     .markdown-body img {
       max-width: 100%;
