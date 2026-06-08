@@ -113,17 +113,14 @@
   background-color: rgba(175, 184, 193, 0.2);
   border-radius: 6px;
   /*
-   * 等幅フォント設定
-   * 罫線（─│┌┐└┘├┤┬┴┼など）を使った表がコードブロック内でずれないように、
-   * CJK文字とラテン文字の字幅比が1:2で揃う等幅フォント Sarasa Mono を同梱して優先する。
-   * （罫線は半角、CJKは全角で正確に1:2。罫線テーブルが言語混在でも崩れない）
-   *
-   * 注: このファイルは参照用。実際のスタイルと @font-face は content.js が動的に注入する
-   *     （通常表示は同梱フォントを、HTMLエクスポートはCDNフォントを参照）。
-   *     簡体字UIではスタック先頭が "Sarasa Mono SC" に入れ替わる。
+   * 罫線テーブルの桁ずれ防止: OS標準のCJK等幅フォントを優先（フォントの同梱なし）。
+   * CJK等幅フォントは「半角ラテン/半角罫線=1 : 全角CJK=2」の正確な比率を持つため、
+   * 先頭に置くとコードブロック全体が単一書体で描画され、言語混在でも罫線が揃う。
+   * 注: このファイルは参照用。実際のスタイルは content.js が注入し、UI言語に応じて
+   *     先頭のCJKフォント（日本語/簡体字）を切り替える。
    */
-  font-family: "Sarasa Mono J", "Sarasa Mono SC", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  /* 罫線文字が合字で連結されないように合字を無効化 */
+  font-family: "BIZ UDGothic", "MS Gothic", "Osaka-Mono", "Noto Sans Mono CJK JP", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* 罫線が合字で連結されないように合字を無効化 */
   font-variant-ligatures: none;
 }
 
