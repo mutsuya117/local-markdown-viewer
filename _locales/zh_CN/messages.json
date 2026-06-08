@@ -96,7 +96,7 @@
     "description": "这是什么部分标题"
   },
   "setupWhatIsThisDesc": {
-    "message": "启用此设置后，本地Markdown查看器可以访问使用<code>file://</code>协议（本地文件）打开的页面。具体来说，当您在Chrome中打开计算机上的<code>.md</code>或<code>.markdown</code>文件时，此扩展可以读取Markdown文本，将其转换为HTML并精美显示。",
+    "message": "启用此设置后，本地Markdown查看器可以访问使用<code>file://</code>协议（本地文件）打开的页面。具体来说，当您在Chrome中打开计算机上的<code>.md</code>、<code>.markdown</code>或<code>.mkdn</code>文件时，此扩展可以读取Markdown文本，将其转换为HTML并精美显示。",
     "description": "这是什么描述"
   },
   "setupWhyNeeded": {
@@ -140,7 +140,7 @@
     "description": "设置完成标题"
   },
   "setupCompleteDesc": {
-    "message": "现在，当您在Chrome中打开本地<code>.md</code>或<code>.markdown</code>文件时，它将以GitHub风格精美显示。",
+    "message": "现在，当您在Chrome中打开本地<code>.md</code>、<code>.markdown</code>或<code>.mkdn</code>文件时，它将以GitHub风格精美显示。",
     "description": "设置完成描述"
   },
   "setupUsageTitle": {
@@ -148,7 +148,7 @@
     "description": "使用标题"
   },
   "setupUsageDesc": {
-    "message": "右键单击Markdown文件（<code>.md</code>或<code>.markdown</code>）→\"打开方式\"→选择\"Google Chrome\"。或者，您可以将文件拖放到Chrome的地址栏中。",
+    "message": "右键单击Markdown文件（<code>.md</code>、<code>.markdown</code>或<code>.mkdn</code>）→\"打开方式\"→选择\"Google Chrome\"。或者，您可以将文件拖放到Chrome的地址栏中。",
     "description": "使用描述"
   }
 }

@@ -1,6 +1,6 @@
 # Local Markdown Viewer - Chrome拡張機能
 
-ローカルのMarkdownファイル（.md, .markdown）をGitHubスタイルで美しくプレビュー表示するChrome拡張機能です。
+ローカルのMarkdownファイル（.md, .markdown, .mkdn）をGitHubスタイルで美しくプレビュー表示するChrome拡張機能です。
 
 ## 対応言語
 
@@ -49,7 +49,7 @@ Chrome Web Storeからインストールします。
 
 ## 使用方法
 
-1. ローカルの.mdまたは.markdownファイルをChromeで開く
+1. ローカルの.md、.markdownまたは.mkdnファイルをChromeで開く
    - ファイルをChromeのウィンドウにドラッグ&ドロップ
    - または右クリック → 「プログラムから開く」→「Google Chrome」
 2. 自動的にGitHubスタイルでプレビュー表示されます
@@ -237,7 +237,7 @@ $$
 
 1. 拡張機能が有効になっているか確認（`chrome://extensions/`）
 2. **「ファイルのURLへのアクセスを許可する」がONになっているか確認**（最も重要）
-3. ファイル拡張子が`.md`または`.markdown`であることを確認
+3. ファイル拡張子が`.md`、`.markdown`または`.mkdn`であることを確認
 4. ページをリロード（Ctrl+R または F5）
 
 ### 数式が正しく表示されない
