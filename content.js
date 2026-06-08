@@ -829,7 +829,9 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      /* 罫線テーブルがずれないようCJK対応の等幅フォントを優先（github.css参照） */
+      font-family: "Source Han Code JP", "Sarasa Mono J", "Sarasa Mono SC", "Noto Sans Mono CJK JP", "Noto Sans Mono CJK SC", "BIZ UDGothic", "MS Gothic", "Osaka-Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-variant-ligatures: none;
       vertical-align: baseline;
     }
     .markdown-body del {
@@ -1652,7 +1654,9 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      /* 罫線テーブルがずれないようCJK対応の等幅フォントを優先（github.css参照） */
+      font-family: "Source Han Code JP", "Sarasa Mono J", "Sarasa Mono SC", "Noto Sans Mono CJK JP", "Noto Sans Mono CJK SC", "BIZ UDGothic", "MS Gothic", "Osaka-Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-variant-ligatures: none;
       vertical-align: baseline;
     }
     .markdown-body del {
