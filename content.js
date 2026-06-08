@@ -2,6 +2,63 @@
 (async function() {
   'use strict';
 
+  // 等幅フォント（Sarasa Mono）設定
+  // 罫線（─│┌┐└┘├┤┬┴┼など）を使ったテーブルがコードブロック内でずれる問題への対応。
+  // 原因はラテン文字用等幅フォントとCJKフォールバックフォントの字幅比が1:2にならないこと。
+  // Sarasa Mono は CJK:半角ラテン=2:1の正確な等幅フォント（罫線も半角）なので、これを同梱して
+  // 優先使用することで、日本語・中国語・英語が混在しても罫線テーブルが崩れないようにする。
+
+  // UI言語に応じて字形の標準形を選択（簡体字環境ではSCを優先、それ以外はJを優先）
+  // ※どちらのバリアントも全CJK文字を含み字幅比は常に1:2なので、罫線の揃いはどちらでも同じ。
+  //   優先順の違いは共有漢字の字形（地域標準形）にのみ影響する。
+  function getMonoFontStack() {
+    let lang = '';
+    try {
+      lang = (chrome.i18n.getUILanguage() || '').toLowerCase();
+    } catch (e) {
+      lang = (navigator.language || '').toLowerCase();
+    }
+    const cjkFonts = lang.startsWith('zh')
+      ? '"Sarasa Mono SC", "Sarasa Mono J"'
+      : '"Sarasa Mono J", "Sarasa Mono SC"';
+    // Sarasa未読込時のフォールバックとしてシステム等幅フォントも指定
+    return cjkFonts + ', ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace';
+  }
+
+  // @font-face 定義を生成（jUrl/scUrl はフォントファイルのURL）
+  // 太字は合成（faux bold）で対応する。等幅フォントの合成太字は字送り幅が変わらないため、
+  // Regularウェイトのみ同梱しても罫線の揃いは保たれる（ファイルサイズ削減）。
+  function getMonoFontFaceCSS(jUrl, scUrl) {
+    return `
+    @font-face {
+      font-family: "Sarasa Mono J";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("${jUrl}") format("woff2");
+    }
+    @font-face {
+      font-family: "Sarasa Mono SC";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("${scUrl}") format("woff2");
+    }`;
+  }
+
+  // 通常表示用: 拡張機能に同梱したフォントを参照
+  const monoFontFaceCSSForView = getMonoFontFaceCSS(
+    chrome.runtime.getURL('libs/fonts/SarasaMonoJ-Regular.woff2'),
+    chrome.runtime.getURL('libs/fonts/SarasaMonoSC-Regular.woff2')
+  );
+
+  // エクスポート用: CDN（jsDelivr経由でリポジトリのフォントファイル）を参照
+  // ※KaTeXフォントと同様にCDN参照方式（CSPで font-src https://cdn.jsdelivr.net を許可済み）
+  const monoFontFaceCSSForExport = getMonoFontFaceCSS(
+    'https://cdn.jsdelivr.net/gh/mutsuya117/local-markdown-viewer@main/libs/fonts/SarasaMonoJ-Regular.woff2',
+    'https://cdn.jsdelivr.net/gh/mutsuya117/local-markdown-viewer@main/libs/fonts/SarasaMonoSC-Regular.woff2'
+  );
+
   // .mdファイルかどうかをチェック
   const path = window.location.pathname;
   if (!path.match(/\.(md|markdown)$/i)) {
@@ -730,6 +787,8 @@
   ${hasGanttChart && mermaidJS ? '<script>' + mermaidJS + '</script>' : ''}
 
   <style>
+    /* 等幅フォント(Sarasa Mono) - 罫線テーブルの桁ずれ防止。フォントはCDNから読み込み */
+    ${monoFontFaceCSSForExport}
     /* GitHub Markdown Style */
     .markdown-body {
       -ms-text-size-adjust: 100%;
@@ -829,8 +888,9 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      /* 罫線テーブルがずれないようCJK対応の等幅フォントを優先（github.css参照） */
-      font-family: "Source Han Code JP", "Sarasa Mono J", "Sarasa Mono SC", "Noto Sans Mono CJK JP", "Noto Sans Mono CJK SC", "BIZ UDGothic", "MS Gothic", "Osaka-Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      /* 罫線テーブルがずれないよう同梱の等幅フォント(Sarasa Mono)を優先 */
+      font-family: ${getMonoFontStack()};
+      /* 罫線文字が合字で連結されないように合字を無効化 */
       font-variant-ligatures: none;
       vertical-align: baseline;
     }
@@ -1555,6 +1615,8 @@
   <title>${escapeHtml(path.split('/').pop())} - Markdown Preview</title>
   <link rel="stylesheet" href="${chrome.runtime.getURL('libs/katex.min.css')}">
   <style>
+    /* 等幅フォント(Sarasa Mono) - 罫線テーブルの桁ずれ防止。同梱フォントを読み込み */
+    ${monoFontFaceCSSForView}
     /* GitHub Markdown Style */
     .markdown-body {
       -ms-text-size-adjust: 100%;
@@ -1654,8 +1716,9 @@
       font-size: 85%;
       background-color: rgba(175, 184, 193, 0.2);
       border-radius: 6px;
-      /* 罫線テーブルがずれないようCJK対応の等幅フォントを優先（github.css参照） */
-      font-family: "Source Han Code JP", "Sarasa Mono J", "Sarasa Mono SC", "Noto Sans Mono CJK JP", "Noto Sans Mono CJK SC", "BIZ UDGothic", "MS Gothic", "Osaka-Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      /* 罫線テーブルがずれないよう同梱の等幅フォント(Sarasa Mono)を優先 */
+      font-family: ${getMonoFontStack()};
+      /* 罫線文字が合字で連結されないように合字を無効化 */
       font-variant-ligatures: none;
       vertical-align: baseline;
     }
