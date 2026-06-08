@@ -1,0 +1,17 @@
+[What's New in Version 1.1.0]
+
+■ YAML Front Matter Rendering (New)
+- YAML front matter enclosed by "---" at the top of a file is now displayed as a clean, GitHub-style metadata table.
+- Supports scalars, lists, and nested maps.
+- Strict detection avoids false positives, so horizontal rules and heading "---" are left untouched.
+- Works in both live preview and exported HTML.
+
+■ Box-Drawing Table Alignment Fix (Improved)
+- Fixed misalignment of tables drawn with box-drawing characters (─│┌, etc.) inside code blocks when they contain CJK characters such as Japanese or Chinese.
+- By prioritizing the OS's built-in CJK monospace fonts, half-width and full-width characters keep an exact 1:2 ratio so the rules line up neatly (no bundled or downloaded fonts, no size increase).
+- Font priority automatically switches between Japanese / Simplified Chinese / Traditional Chinese based on the UI language.
+
+■ Bundled Library Updates (Maintenance)
+- Updated to DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47 for improved security and stability.
+
+Thank you for using Local Markdown Viewer. We welcome your feedback and feature requests.
