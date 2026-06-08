@@ -2,9 +2,9 @@
 (async function() {
   'use strict';
 
-  // .mdファイルかどうかをチェック
+  // .md / .markdown / .mkdn ファイルかどうかをチェック
   const path = window.location.pathname;
-  if (!path.match(/\.(md|markdown)$/i)) {
+  if (!path.match(/\.(md|markdown|mkdn)$/i)) {
     return;
   }
 
@@ -710,7 +710,7 @@
     tocContent = formatHTML(tocContent);
 
     // ファイル名を取得（拡張子なし）
-    const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '');
+    const fileName = path.split('/').pop().replace(/\.(md|markdown|mkdn)$/i, '');
 
     // エクスポート用HTMLテンプレート
     // CDNからライブラリを読み込み、完全なスタンドアロンHTMLとして動作
@@ -2410,7 +2410,7 @@
         const exportHTML = await generateExportHTML(isKatexEnabled, imageMap);
 
         // ファイル名を生成
-        const fileName = path.split('/').pop().replace(/\.(md|markdown)$/i, '') + '.html';
+        const fileName = path.split('/').pop().replace(/\.(md|markdown|mkdn)$/i, '') + '.html';
 
         // Blobを作成
         const blob = new Blob([exportHTML], { type: 'text/html;charset=utf-8' });

@@ -96,7 +96,7 @@
     "description": "設定の説明セクション - タイトル"
   },
   "setupWhatIsThisDesc": {
-    "message": "この設定を有効にすると、Local Markdown Viewerが<code>file://</code>プロトコル（ローカルファイル）で開かれたページにアクセスできるようになります。具体的には、あなたのパソコン内の<code>.md</code>や<code>.markdown</code>ファイルをChromeで開いたときに、この拡張機能がMarkdown形式のテキストを読み取り、HTMLに変換して美しく表示します。",
+    "message": "この設定を有効にすると、Local Markdown Viewerが<code>file://</code>プロトコル（ローカルファイル）で開かれたページにアクセスできるようになります。具体的には、あなたのパソコン内の<code>.md</code>や<code>.markdown</code>、<code>.mkdn</code>ファイルをChromeで開いたときに、この拡張機能がMarkdown形式のテキストを読み取り、HTMLに変換して美しく表示します。",
     "description": "設定の説明"
   },
   "setupWhyNeeded": {
@@ -140,7 +140,7 @@
     "description": "設定完了のタイトル"
   },
   "setupCompleteDesc": {
-    "message": "これで、ローカルの<code>.md</code>または<code>.markdown</code>ファイルをChromeで開くと、GitHubスタイルで美しく表示されます。",
+    "message": "これで、ローカルの<code>.md</code>、<code>.markdown</code>または<code>.mkdn</code>ファイルをChromeで開くと、GitHubスタイルで美しく表示されます。",
     "description": "設定完了の説明"
   },
   "setupUsageTitle": {
@@ -148,7 +148,7 @@
     "description": "使い方のタイトル"
   },
   "setupUsageDesc": {
-    "message": "Markdownファイル（<code>.md</code>または<code>.markdown</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。",
+    "message": "Markdownファイル（<code>.md</code>、<code>.markdown</code>または<code>.mkdn</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。",
     "description": "使い方の説明"
   }
 }
