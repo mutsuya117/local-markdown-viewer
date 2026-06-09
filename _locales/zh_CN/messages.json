@@ -150,5 +150,29 @@
   "setupUsageDesc": {
     "message": "右键单击Markdown文件（<code>.md</code>、<code>.markdown</code>或<code>.mkdn</code>）→\"打开方式\"→选择\"Google Chrome\"。或者，您可以将文件拖放到Chrome的地址栏中。",
     "description": "使用描述"
+  },
+  "changelogTitle": {
+    "message": "更新历史",
+    "description": "更新历史部分的标题"
+  },
+  "changelog_1_1_0_a": {
+    "message": "支持将YAML前置元数据以GitHub风格的表格进行排版显示",
+    "description": "v1.1.0更改1"
+  },
+  "changelog_1_1_0_b": {
+    "message": "更新内置库（DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47）",
+    "description": "v1.1.0更改2"
+  },
+  "changelog_1_1_0_c": {
+    "message": "在此设置页面添加了更新历史",
+    "description": "v1.1.0更改3"
+  },
+  "changelog_1_0_7_a": {
+    "message": "将内置库更新至最新版本",
+    "description": "v1.0.7更改1"
+  },
+  "changelog_1_0_0_a": {
+    "message": "首次发布（GitHub风格显示、语法高亮、Mermaid图表、KaTeX公式、自动目录、深色模式、打印、HTML导出）",
+    "description": "v1.0.0更改1"
   }
 }

@@ -8,6 +8,52 @@ function setI18nText(elementId, messageName) {
   }
 }
 
+// 更新履歴データ（新しいバージョンを先頭に追加する）
+// version, date は固定値、items は _locales のi18nメッセージキー
+const CHANGELOG = [
+  {
+    version: '1.1.0',
+    date: '2026-06-08',
+    items: ['changelog_1_1_0_a', 'changelog_1_1_0_b', 'changelog_1_1_0_c']
+  },
+  {
+    version: '1.0.7',
+    date: '2025-11-11',
+    items: ['changelog_1_0_7_a']
+  },
+  {
+    version: '1.0.0',
+    date: '2025-11-10',
+    items: ['changelog_1_0_0_a']
+  }
+];
+
+// 更新履歴を描画する関数
+function renderChangelog() {
+  const container = document.getElementById('changelogList');
+  if (!container) return;
+
+  // 各バージョンのエントリを生成（version/dateは固定値、itemsはi18nメッセージ）
+  const html = CHANGELOG.map(function(entry) {
+    const items = entry.items
+      .map(function(key) {
+        return '<li>' + chrome.i18n.getMessage(key) + '</li>';
+      })
+      .join('');
+    return (
+      '<div class="changelog-entry">' +
+      '<div class="changelog-version">' +
+      '<span class="changelog-badge">v' + entry.version + '</span>' +
+      '<span class="changelog-date">' + entry.date + '</span>' +
+      '</div>' +
+      '<ul>' + items + '</ul>' +
+      '</div>'
+    );
+  }).join('');
+
+  container.innerHTML = html;
+}
+
 // DOMが読み込まれたら実行
 document.addEventListener('DOMContentLoaded', function() {
   // ページタイトルを設定
@@ -46,6 +92,10 @@ document.addEventListener('DOMContentLoaded', function() {
   setI18nText('completeDesc', 'setupCompleteDesc');
   setI18nText('usageTitle', 'setupUsageTitle');
   setI18nText('usageDesc', 'setupUsageDesc');
+
+  // 更新履歴セクション
+  setI18nText('changelogTitle', 'changelogTitle');
+  renderChangelog();
 
   // 拡張機能の管理ページを開くボタン
   const openExtensionsBtn = document.getElementById('openExtensionsBtn');

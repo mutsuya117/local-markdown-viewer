@@ -150,5 +150,29 @@
   "setupUsageDesc": {
     "message": "Right-click a Markdown file (<code>.md</code>, <code>.markdown</code>, or <code>.mkdn</code>) → \"Open with\" → Select \"Google Chrome\". Alternatively, you can drag and drop the file into Chrome's address bar.",
     "description": "Usage description"
+  },
+  "changelogTitle": {
+    "message": "Changelog",
+    "description": "Changelog section title"
+  },
+  "changelog_1_1_0_a": {
+    "message": "Display YAML front matter as a GitHub-style table",
+    "description": "v1.1.0 change 1"
+  },
+  "changelog_1_1_0_b": {
+    "message": "Updated bundled libraries (DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47)",
+    "description": "v1.1.0 change 2"
+  },
+  "changelog_1_1_0_c": {
+    "message": "Added a changelog to this setup page",
+    "description": "v1.1.0 change 3"
+  },
+  "changelog_1_0_7_a": {
+    "message": "Updated bundled libraries to the latest versions",
+    "description": "v1.0.7 change 1"
+  },
+  "changelog_1_0_0_a": {
+    "message": "Initial release (GitHub-style rendering, syntax highlighting, Mermaid diagrams, KaTeX math, automatic table of contents, dark mode, printing, HTML export)",
+    "description": "v1.0.0 change 1"
   }
 }

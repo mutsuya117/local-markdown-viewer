@@ -241,6 +241,84 @@
       font-size: 15px;
       padding: 12px 24px;
     }
+
+    /* 更新履歴セクション */
+    .changelog {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid #d0d7de;
+    }
+
+    .changelog h2 {
+      font-size: 22px;
+      color: #24292f;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    .changelog h2::before {
+      content: '📝';
+      margin-right: 10px;
+      font-size: 24px;
+    }
+
+    .changelog-entry {
+      background-color: #f6f8fa;
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    .changelog-version {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .changelog-badge {
+      display: inline-block;
+      background-color: #667eea;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .changelog-date {
+      font-size: 14px;
+      color: #57606a;
+    }
+
+    .changelog-entry ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .changelog-entry li {
+      color: #24292f;
+      font-size: 15px;
+      line-height: 1.7;
+      padding-left: 22px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    .changelog-entry li:last-child {
+      margin-bottom: 0;
+    }
+
+    .changelog-entry li::before {
+      content: '•';
+      position: absolute;
+      left: 4px;
+      color: #667eea;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -315,6 +393,11 @@
         <strong id="usageTitle"></strong>
         <span id="usageDesc"></span>
       </p>
+    </div>
+
+    <div class="changelog">
+      <h2 id="changelogTitle"></h2>
+      <div id="changelogList"></div>
     </div>
   </div>
 
