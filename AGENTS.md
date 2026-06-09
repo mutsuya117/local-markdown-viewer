@@ -36,6 +36,8 @@ local-markdown-viewer/
 ├── manifest.json          # Chrome拡張機能のマニフェストファイル（Manifest V3）
 ├── content.js            # メインのコンテンツスクリプト
 ├── background.js         # Background Service Worker（画像Base64変換用）
+├── setup.html            # オプションページ（セットアップガイド・更新履歴）
+├── setup.js              # オプションページのスクリプト（i18n適用・更新履歴描画）
 ├── README.md             # プロジェクトドキュメント（日本語）
 ├── AGENTS.md             # AIエージェント向けプロジェクト情報
 ├── CLAUDE.md             # Claude Code設定（@AGENTS.mdをインポート）
@@ -305,6 +307,33 @@ local-markdown-viewer/
 ```bash
 # manifest.jsonを編集後、chrome://extensions/ で拡張機能を再読み込み
 ```
+
+### 更新履歴（Changelog）の追加
+
+更新履歴はオプションページ（`setup.html`）の末尾に表示される。
+`chrome://extensions/` → 詳細 → 拡張機能のオプション（またはアイコン右クリック → オプション）から確認できる。
+
+新しいバージョンを追加する手順:
+
+1. **`setup.js` の `CHANGELOG` 配列の先頭**に、新しいバージョンのブロックを追加する
+   ```js
+   const CHANGELOG = [
+     {
+       version: '1.2.0',        // manifest.json の version と合わせる
+       date: '2026-XX-XX',      // リリース日（YYYY-MM-DD）
+       items: ['changelog_1_2_0_a', 'changelog_1_2_0_b']  // 変更点ごとのi18nキー
+     },
+     // ↓ 既存のバージョンはそのまま
+   ];
+   ```
+2. **3言語すべての `_locales/{ja,en,zh_CN}/messages.json`** に、`items` で指定したキーのメッセージを追加する
+   - 1つの変更点 = 1つのメッセージキー（例: `changelog_1_2_0_a`）
+   - 日本語・英語・中国語簡体字の3言語すべてに同じキーを追加すること
+3. `manifest.json` の `version` も忘れずに更新する
+
+補足:
+- `version` / `date` はコード内の固定値、変更点の文言のみ i18n 化している
+- 描画は `setup.js` の `renderChangelog()` が担当（自分たちで管理する固定文言のため `innerHTML` で挿入）
 
 ## 注意事項
 
