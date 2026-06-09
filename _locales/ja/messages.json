@@ -150,5 +150,29 @@
   "setupUsageDesc": {
     "message": "Markdownファイル（<code>.md</code>、<code>.markdown</code>または<code>.mkdn</code>）を右クリック → 「プログラムから開く」 → 「Google Chrome」を選択してください。または、Chromeのアドレスバーにファイルをドラッグ＆ドロップすることでも開けます。",
     "description": "使い方の説明"
+  },
+  "changelogTitle": {
+    "message": "更新履歴",
+    "description": "更新履歴セクションのタイトル"
+  },
+  "changelog_1_1_0_a": {
+    "message": "YAMLフロントマターをGitHub風のテーブルで整形表示するように対応",
+    "description": "v1.1.0の変更点1"
+  },
+  "changelog_1_1_0_b": {
+    "message": "同梱ライブラリを更新（DOMPurify 3.4.8 / Mermaid 11.15.0 / KaTeX 0.16.47）",
+    "description": "v1.1.0の変更点2"
+  },
+  "changelog_1_1_0_c": {
+    "message": "このセットアップページに更新履歴を追加",
+    "description": "v1.1.0の変更点3"
+  },
+  "changelog_1_0_7_a": {
+    "message": "同梱ライブラリを最新版に更新",
+    "description": "v1.0.7の変更点1"
+  },
+  "changelog_1_0_0_a": {
+    "message": "初回リリース（GitHubスタイル表示、シンタックスハイライト、Mermaidダイアグラム、KaTeX数式、自動目次、ダークモード、印刷、HTMLエクスポート）",
+    "description": "v1.0.0の変更点1"
   }
 }
