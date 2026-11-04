@@ -2878,4 +2878,38 @@
     });
   }
 
+  // URLのアンカー（#id）へ移動する
+  // ブラウザはページ書き換え前に移動しようとするため、その時点では要素が存在せず移動できない
+  function scrollToHash() {
+    if (location.hash.length < 2) {
+      return;
+    }
+    let id;
+    try {
+      id = decodeURIComponent(location.hash.slice(1));
+    } catch (e) {
+      id = location.hash.slice(1);
+    }
+    const target = document.getElementById(id) || document.getElementsByName(id)[0];
+    if (target) {
+      target.scrollIntoView();
+    }
+  }
+
+  scrollToHash();
+
+  // KaTeXとMermaidの描画で位置がずれるため、ユーザーがまだスクロールしていなければもう一度移動する
+  let userScrolled = false;
+  const markUserScrolled = () => { userScrolled = true; };
+  ['wheel', 'keydown', 'mousedown', 'touchstart'].forEach((type) => {
+    window.addEventListener(type, markUserScrolled, { once: true, passive: true });
+  });
+  scheduleWork(() => {
+    setTimeout(() => {
+      if (!userScrolled) {
+        scrollToHash();
+      }
+    }, 500);
+  });
+
 })();
